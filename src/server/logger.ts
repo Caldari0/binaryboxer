@@ -21,7 +21,7 @@ const emit = (entry: LogEntry): void => {
   } else if (entry.level === 'warn') {
     console.warn(line);
   } else {
-    console.log(line);
+    console.info(line);
   }
 };
 

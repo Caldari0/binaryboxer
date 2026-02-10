@@ -60,7 +60,7 @@ export const broadcastEvent = async (
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const txn = await redis.watch(key);
-    const eventsRaw = await txn.get(key);
+    const eventsRaw = await redis.get(key);
     const events: CommunityEvent[] = eventsRaw ? JSON.parse(eventsRaw) : [];
     events.unshift(event);
     const trimmed = events.slice(0, 50);
@@ -70,9 +70,9 @@ export const broadcastEvent = async (
 
     try {
       await txn.exec();
-      // Push to realtime channel so connected clients get instant updates
-      // Channel names cannot contain ':' — use '-' as separator
-      const channel = `${postId}-events`;
+      // Push to realtime channel so connected clients get instant updates.
+      // Channel names only allow letters, numbers, and underscores.
+      const channel = `${postId}_events`;
       await realtime.send(channel, event).catch(() => {
         // Realtime is best-effort; don't fail the whole operation
       });

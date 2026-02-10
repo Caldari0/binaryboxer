@@ -77,16 +77,45 @@ const initialState: GameState = {
   error: null,
 };
 
+const API_TIMEOUT_MS = 15000;
+
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`/api${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = (await res.json()) as ApiError;
-    throw new Error(err.message || `HTTP ${res.status}`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options?.headers ?? {}),
+    };
+    const res = await fetch(`/api${path}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      let message = `HTTP ${res.status}`;
+      try {
+        const err = (await res.json()) as Partial<ApiError>;
+        if (typeof err.message === 'string' && err.message.length > 0) {
+          message = err.message;
+        }
+      } catch {
+        // Ignore JSON parse failures and use HTTP status fallback.
+      }
+      throw new Error(message);
+    }
+
+    return res.json() as Promise<T>;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-  return res.json() as Promise<T>;
 }
 
 export const useGameState = () => {
@@ -106,42 +135,53 @@ export const useGameState = () => {
   }, []);
 
   // --- Init ---
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const data = await apiFetch<InitResponse>('/init');
-        safeSetState((prev) => ({
-          ...prev,
-          postId: data.postId,
-          username: data.username,
-          player: data.player,
-          fight: data.fight ?? null,
-          screen: data.hasPlayer
-            ? data.player?.state === 'fighting' && data.fight
-              ? 'fighting'
-              : data.player?.state === 'retired' || data.player?.state === 'creating'
-                ? 'creating'
-                : 'corner'
-            : 'creating',
-          loading: false,
-        }));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to initialize';
-        safeSetState((prev) => ({
-          ...prev,
-          error: message,
-          loading: false,
-          screen: 'loading',
-        }));
-      }
-    };
-    void init();
+  const performInit = useCallback(async () => {
+    try {
+      const data = await apiFetch<InitResponse>('/init');
+      safeSetState((prev) => ({
+        ...prev,
+        postId: data.postId,
+        username: data.username,
+        player: data.player,
+        fight: data.fight ?? null,
+        screen: data.hasPlayer
+          ? data.player?.state === 'fighting' && data.fight
+            ? 'fighting'
+            : data.player?.state === 'retired' || data.player?.state === 'creating'
+              ? 'creating'
+              : 'corner'
+          : 'creating',
+        loading: false,
+      }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to initialize';
+      safeSetState((prev) => ({
+        ...prev,
+        error: message,
+        loading: false,
+        screen: 'loading',
+      }));
+    }
   }, [safeSetState]);
+
+  useEffect(() => {
+    void performInit();
+  }, [performInit]);
+
+  const retryInit = useCallback(async () => {
+    safeSetState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+      screen: 'loading',
+    }));
+    await performInit();
+  }, [performInit, safeSetState]);
 
   // --- Realtime community events ---
   useEffect(() => {
     if (!state.postId) return;
-    const channel = `${state.postId}-events`;
+    const channel = `${state.postId}_events`;
     connectRealtime<CommunityEvent>({
       channel,
       onMessage: (event) => {
@@ -441,6 +481,7 @@ export const useGameState = () => {
 
   return {
     ...state,
+    retryInit,
     createRobot,
     startFight,
     submitAction,

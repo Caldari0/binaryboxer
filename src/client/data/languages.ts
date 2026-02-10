@@ -27,6 +27,7 @@ export type LanguageId =
   | 'haskell'
   | 'lua';
 
+/** Extends shared LanguageDefinition with UI-specific fields (quote, token) */
 export type LanguageProfile = {
   id: LanguageId;
   name: string;
@@ -37,7 +38,9 @@ export type LanguageProfile = {
   secondaryBonus: number;
   /** Bonus applied to ALL growth stats per level (Python special) */
   allStatBonus: number;
+  /** Short flavour text shown on language card */
   quote: string;
+  /** 2-3 char abbreviation shown when selected */
   token: string;
 };
 

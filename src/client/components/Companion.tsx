@@ -3,6 +3,8 @@
 // Small companion indicator with colored dot, name, and bob animation
 // ============================================================
 
+import type { ReactElement } from 'react';
+
 type CompanionProps = {
   id: 'veil' | 'echo' | 'kindred';
   active: boolean;
@@ -35,7 +37,7 @@ const COMPANION_META: Record<string, CompanionMeta> = {
 export const Companion = ({
   id,
   active,
-}: CompanionProps): React.ReactElement | null => {
+}: CompanionProps): ReactElement | null => {
   const meta = COMPANION_META[id];
 
   if (!meta) return null;

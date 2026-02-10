@@ -3,6 +3,8 @@
 // Dynasty family tree visualization with tree connectors
 // ============================================================
 
+import type { ReactElement } from 'react';
+
 type DynastyGenerationData = {
   generationNumber: number;
   robotName: string;
@@ -74,7 +76,7 @@ export const DynastyTree = ({
   dynasty,
   currentRobot,
   onBack,
-}: DynastyTreeProps): React.ReactElement => {
+}: DynastyTreeProps): ReactElement => {
   const totalGenerations =
     (dynasty?.generations.length ?? 0) + (currentRobot ? 1 : 0);
   const title = getDynastyTitle(totalGenerations);

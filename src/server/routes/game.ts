@@ -19,7 +19,6 @@ import type {
   PlayerState,
   Dynasty,
   DynastyGeneration,
-  CommunityEvent,
 } from '../../shared/types';
 import {
   calculateStatsForLevel,

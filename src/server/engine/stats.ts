@@ -28,9 +28,6 @@ const GROWTH_STAT_KEYS: GrowthStatKey[] = [
   'penetration',
 ];
 
-// Python special: +2 to ALL growth stats per level
-const PYTHON_ALL_STAT_BONUS = 2;
-
 /**
  * Returns the starting base stats for a new robot.
  * HP 100, maxHp 100, Power 10, Defence 5, Speed 5, all others 0.
@@ -85,15 +82,15 @@ export const calculateStatsForLevel = (
     applyLanguageBonuses(stats, lang2.secondaryStat, lang2.secondaryBonus, level);
   }
 
-  // Python special: +2 to ALL growth stats per level
-  if (language1 === 'python') {
+  // Apply allStatBonus (e.g. Python +2 to ALL growth stats per level)
+  if (lang1.allStatBonus > 0) {
     for (const key of GROWTH_STAT_KEYS) {
-      stats[key] += PYTHON_ALL_STAT_BONUS * level;
+      stats[key] += lang1.allStatBonus * level;
     }
   }
-  if (language2 === 'python') {
+  if (lang2.allStatBonus > 0) {
     for (const key of GROWTH_STAT_KEYS) {
-      stats[key] += PYTHON_ALL_STAT_BONUS * level;
+      stats[key] += lang2.allStatBonus * level;
     }
   }
 

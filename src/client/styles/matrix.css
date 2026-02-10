@@ -4,23 +4,7 @@
 
 @import 'tailwindcss';
 
-/* --- CSS Custom Properties --- */
-
-:root {
-  --bb-bg: #0a0a0a;
-  --bb-grid: #0d2818;
-  --bb-primary: #00ff41;
-  --bb-secondary: #00b4d8;
-  --bb-accent: #ff6b35;
-  --bb-hp-player: #00ff41;
-  --bb-hp-enemy: #ff0040;
-  --bb-veil: #9b5de5;
-  --bb-echo: #00f5d4;
-  --bb-kindred: #ffd60a;
-  --bb-crit: #ffffff;
-  --bb-dim: #0d4f1c;
-  --bb-text-dim: #4a7a5a;
-}
+/* CSS variables are defined in index.css — single canonical source */
 
 /* --- Base Styles --- */
 
@@ -234,7 +218,10 @@ textarea {
 .health-bar {
   height: 8px;
   border-radius: 2px;
-  transition: width 300ms ease;
+  width: 100%;
+  transform-origin: left;
+  transition: transform 300ms ease;
+  will-change: transform;
 }
 
 .health-bar-player {

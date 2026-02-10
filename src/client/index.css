@@ -348,8 +348,11 @@ select {
 
 .bb-hp-fill {
   height: 100%;
+  width: 100%;
   border-radius: var(--bb-radius-full);
-  transition: width var(--bb-duration-slow) var(--bb-ease-out);
+  transform-origin: left;
+  transition: transform var(--bb-duration-slow) var(--bb-ease-out);
+  will-change: transform;
   position: relative;
 }
 
@@ -603,9 +606,12 @@ select {
 
 .bb-timer-fill {
   height: 100%;
+  width: 100%;
   background: var(--bb-hp-high);
   border-radius: var(--bb-radius-full);
-  transition: width 100ms linear;
+  transform-origin: left;
+  transition: transform 100ms linear;
+  will-change: transform;
 }
 
 .bb-timer-fill--urgent {
@@ -821,9 +827,12 @@ select {
 
 .bb-xp-fill {
   height: 100%;
+  width: 100%;
   background: var(--bb-xp);
   border-radius: var(--bb-radius-full);
-  transition: width var(--bb-duration-slow) var(--bb-ease-out);
+  transform-origin: left;
+  transition: transform var(--bb-duration-slow) var(--bb-ease-out);
+  will-change: transform;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%);
 }
 

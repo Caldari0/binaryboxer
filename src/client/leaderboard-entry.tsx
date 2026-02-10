@@ -16,7 +16,7 @@ type LeaderboardInlineState = {
   loaded: boolean;
 };
 
-const LeaderboardInline = () => {
+export const LeaderboardInline = () => {
   const [state, setState] = useState<LeaderboardInlineState>({
     entries: [],
     loaded: false,

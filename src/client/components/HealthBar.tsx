@@ -3,6 +3,8 @@
 // Animated health bar with label, level, and numeric HP display
 // ============================================================
 
+import type { ReactElement } from 'react';
+
 type HealthBarProps = {
   current: number;
   max: number;
@@ -17,8 +19,9 @@ export const HealthBar = ({
   variant,
   label,
   level,
-}: HealthBarProps): React.ReactElement => {
-  const percentage = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+}: HealthBarProps): ReactElement => {
+  const ratio = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
+  const percentage = ratio * 100;
   const isLow = percentage < 25;
   const isCritical = percentage < 10;
 
@@ -41,7 +44,7 @@ export const HealthBar = ({
       <div className="w-full h-2 rounded-sm bg-[var(--bb-grid)] terminal-border overflow-hidden">
         <div
           className={`health-bar ${barClass} ${isLow ? 'animate-pulse' : ''}`}
-          style={{ width: `${percentage}%` }}
+          style={{ transform: `scaleX(${ratio})` }}
           role="progressbar"
           aria-valuenow={current}
           aria-valuemin={0}

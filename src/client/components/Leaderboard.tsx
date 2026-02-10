@@ -3,6 +3,8 @@
 // Rankings display with metric tabs and player highlighting
 // ============================================================
 
+import type { ReactElement } from 'react';
+
 type LeaderboardEntry = {
   rank: number;
   username: string;
@@ -60,7 +62,7 @@ export const Leaderboard = ({
   playerRank,
   onChangeMetric,
   onBack,
-}: LeaderboardProps): React.ReactElement => {
+}: LeaderboardProps): ReactElement => {
   return (
     <div className="bb-screen-enter" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--bb-space-md)' }}>
       {/* Header */}

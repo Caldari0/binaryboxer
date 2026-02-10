@@ -3,7 +3,7 @@
 // Cycling educational tips related to the player's two languages
 // ============================================================
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ReactElement } from 'react';
 
 type LearningTickerProps = {
   language1: string;
@@ -141,7 +141,7 @@ const FADE_DURATION_MS = 500;
 export const LearningTicker = ({
   language1,
   language2,
-}: LearningTickerProps): React.ReactElement => {
+}: LearningTickerProps): ReactElement => {
   // Build a combined tip pool from both languages
   const tipPool = useCallback((): Array<{ language: string; tip: string }> => {
     const pool: Array<{ language: string; tip: string }> = [];

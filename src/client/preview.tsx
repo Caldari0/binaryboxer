@@ -5,8 +5,8 @@
 
 import './index.css';
 
-import { context, requestExpandedMode } from '@devvit/web/client';
-import { StrictMode, useEffect, useState } from 'react';
+import { context, requestExpandedMode, showToast } from '@devvit/web/client';
+import { StrictMode, useEffect, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { InitResponse } from '../shared/api';
 
@@ -69,6 +69,14 @@ export const Splash = () => {
     ? `${state.robotName ?? 'UNIT'} | LV.${state.level ?? 1} | ${state.streak ?? 0}W STREAK | GEN.${state.generation ?? 1}`
     : null;
 
+  const openGame = (event: ReactMouseEvent<HTMLButtonElement>): void => {
+    try {
+      requestExpandedMode(event.nativeEvent, 'game');
+    } catch {
+      showToast('Could not open fight view. Please try again.');
+    }
+  };
+
   return (
     <div className="bb-app">
       <div className="bb-splash">
@@ -103,7 +111,7 @@ export const Splash = () => {
           <button
             type="button"
             className="bb-btn bb-btn--primary mt-3 w-full"
-            onClick={(e) => requestExpandedMode(e.nativeEvent, 'game')}
+            onClick={openGame}
           >
             {state.hasPlayer ? '[ENTER] TAP TO CONTINUE' : '[ENTER] TAP TO FIGHT'}
           </button>

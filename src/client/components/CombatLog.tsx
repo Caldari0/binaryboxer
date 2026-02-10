@@ -3,7 +3,7 @@
 // Scrolling terminal-style combat log with slide-in animation
 // ============================================================
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 
 type CombatLogTurn = {
   turnNumber: number;
@@ -20,7 +20,7 @@ type CombatLogProps = {
 export const CombatLog = ({
   turns,
   currentTurn,
-}: CombatLogProps): React.ReactElement => {
+}: CombatLogProps): ReactElement => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new turns appear
@@ -56,7 +56,7 @@ type CombatLogLineProps = {
   turn: CombatLogTurn;
 };
 
-const CombatLogLine = ({ turn }: CombatLogLineProps): React.ReactElement => {
+const CombatLogLine = ({ turn }: CombatLogLineProps): ReactElement => {
   let textClass = 'text-[var(--bb-primary)]';
   if (turn.critical) {
     textClass = 'text-[var(--bb-kindred)] font-bold';

@@ -3,7 +3,7 @@
 // Language-driven robot creation with stat preview
 // ============================================================
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactElement } from 'react';
 import type { LanguageId } from '../../shared/types';
 import {
   LANGUAGE_PROFILES,
@@ -28,7 +28,7 @@ const STAT_KEYS: StatKey[] = [
 export const RobotCreation = ({
   onSubmit,
   loading,
-}: RobotCreationProps): React.ReactElement => {
+}: RobotCreationProps): ReactElement => {
   const [name, setName] = useState('');
   const [selected, setSelected] = useState<LanguageId[]>([]);
 
@@ -104,7 +104,6 @@ export const RobotCreation = ({
                 key={id}
                 type="button"
                 className={`bb-lang-card bb-lang-accent-${id} ${isSelected ? 'bb-lang-card--selected' : ''}`}
-                style={isSelected ? { '--bb-lang-accent': lang.color } as React.CSSProperties : undefined}
                 onClick={() => toggleLanguage(id)}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -158,7 +157,7 @@ export const RobotCreation = ({
                 <div key={key} className="bb-stat-row">
                   <span className="bb-stat-label">{previewStatLabel(key)}</span>
                   <div style={{ flex: 1, height: '4px', background: 'var(--bb-border)', borderRadius: '2px', overflow: 'hidden', margin: '0 var(--bb-space-sm)' }}>
-                    <div style={{ height: '100%', width: `${fill}%`, background: value > 0 ? 'var(--bb-hp-high)' : 'transparent', borderRadius: '2px', transition: 'width 300ms' }} />
+                    <div style={{ height: '100%', width: '100%', transformOrigin: 'left', transform: `scaleX(${fill / 100})`, background: value > 0 ? 'var(--bb-hp-high)' : 'transparent', borderRadius: '2px', transition: 'transform 300ms', willChange: 'transform' }} />
                   </div>
                   <span className="bb-stat-value">{value}</span>
                 </div>

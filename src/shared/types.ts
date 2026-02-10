@@ -43,6 +43,8 @@ export type LanguageDefinition = {
   primaryBonus: number;
   secondaryStat: GrowthStatKey | null;
   secondaryBonus: number;
+  /** Bonus applied to ALL growth stats per level (e.g. Python +2) */
+  allStatBonus: number;
   color: string;
   flavour: string;
 };

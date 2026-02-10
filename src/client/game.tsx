@@ -51,9 +51,20 @@ export const App = () => {
           <div className="bb-splash-title">Binary Boxer</div>
           <div style={{ marginTop: 'var(--bb-space-md)' }}>
             {game.error ? (
-              <span className="bb-fluid-sm" style={{ color: 'var(--bb-damage)' }}>
-                ERROR: {game.error}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--bb-space-sm)' }}>
+                <span className="bb-fluid-sm" style={{ color: 'var(--bb-damage)' }}>
+                  ERROR: {game.error}
+                </span>
+                <button
+                  type="button"
+                  className="bb-btn"
+                  onClick={() => {
+                    void game.retryInit();
+                  }}
+                >
+                  RETRY
+                </button>
+              </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--bb-space-sm)', justifyContent: 'center' }}>
                 <div className="bb-spinner" />
