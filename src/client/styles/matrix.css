@@ -1,0 +1,361 @@
+/* ============================================================
+   Binary Boxer — Matrix Cyberpunk Terminal Theme
+   ============================================================ */
+
+@import 'tailwindcss';
+
+/* --- CSS Custom Properties --- */
+
+:root {
+  --bb-bg: #0a0a0a;
+  --bb-grid: #0d2818;
+  --bb-primary: #00ff41;
+  --bb-secondary: #00b4d8;
+  --bb-accent: #ff6b35;
+  --bb-hp-player: #00ff41;
+  --bb-hp-enemy: #ff0040;
+  --bb-veil: #9b5de5;
+  --bb-echo: #00f5d4;
+  --bb-kindred: #ffd60a;
+  --bb-crit: #ffffff;
+  --bb-dim: #0d4f1c;
+  --bb-text-dim: #4a7a5a;
+}
+
+/* --- Base Styles --- */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bb-bg);
+  color: var(--bb-primary);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* --- Scrollbar Styling --- */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bb-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bb-dim);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bb-primary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bb-dim) var(--bb-bg);
+}
+
+/* --- CRT Scanline Overlay --- */
+
+.crt-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.15) 1px,
+    rgba(0, 0, 0, 0.15) 2px
+  );
+  opacity: 0.4;
+  z-index: 20;
+}
+
+/* --- Keyframe Animations --- */
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 4px rgba(0, 255, 65, 0.4),
+      0 0 8px rgba(0, 255, 65, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(0, 255, 65, 0.7),
+      0 0 20px rgba(0, 255, 65, 0.4),
+      0 0 30px rgba(0, 255, 65, 0.2);
+  }
+}
+
+@keyframes float-up-fade {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes blink-cursor {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes health-flash {
+  0% {
+    background-color: rgba(255, 0, 64, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes crit-flash {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes matrix-rain {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- Utility Classes --- */
+
+.terminal-text {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: var(--bb-primary);
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.3);
+}
+
+.terminal-border {
+  border: 1px solid var(--bb-dim);
+  box-shadow:
+    0 0 4px rgba(0, 255, 65, 0.1),
+    inset 0 0 4px rgba(0, 255, 65, 0.05);
+}
+
+.health-bar {
+  height: 8px;
+  border-radius: 2px;
+  transition: width 300ms ease;
+}
+
+.health-bar-player {
+  background-color: var(--bb-hp-player);
+  box-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+}
+
+.health-bar-enemy {
+  background-color: var(--bb-hp-enemy);
+  box-shadow: 0 0 6px rgba(255, 0, 64, 0.4);
+}
+
+.damage-number {
+  position: absolute;
+  pointer-events: none;
+  font-weight: 700;
+  animation: float-up-fade 1s forwards;
+}
+
+.combat-log-entry {
+  animation: slide-in 200ms ease-out;
+}
+
+.blink {
+  animation: blink-cursor 1s step-end infinite;
+}
+
+.glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.companion-bob {
+  animation: bob 3s ease-in-out infinite;
+}
+
+.stat-bar {
+  display: inline-block;
+  background: linear-gradient(
+    to right,
+    var(--bb-primary) var(--stat-fill, 50%),
+    var(--bb-grid) var(--stat-fill, 50%)
+  );
+  height: 10px;
+  border-radius: 1px;
+  min-width: 80px;
+}
+
+.boss-intro {
+  background-color: rgba(255, 0, 64, 0.08);
+  text-shadow:
+    0 0 10px rgba(255, 0, 64, 0.5),
+    0 0 20px rgba(255, 0, 64, 0.3);
+}
+
+.terminal-button {
+  border: 1px solid var(--bb-primary);
+  color: var(--bb-primary);
+  background: transparent;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.terminal-button:hover:not(:disabled) {
+  background-color: rgba(0, 255, 65, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.terminal-button:active:not(:disabled) {
+  background-color: rgba(0, 255, 65, 0.2);
+}
+
+.terminal-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--bb-primary);
+  color: var(--bb-primary);
+  outline: none;
+  padding: 0.25rem 0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  caret-color: var(--bb-primary);
+}
+
+.terminal-input::placeholder {
+  color: var(--bb-text-dim);
+}
+
+.terminal-input:focus {
+  border-bottom-color: var(--bb-primary);
+  box-shadow: 0 1px 0 0 rgba(0, 255, 65, 0.4);
+}
+
+/* --- Boss Fight Variants --- */
+
+.boss-fight-bg {
+  background-color: rgba(255, 0, 64, 0.04);
+}
+
+.boss-health-bar {
+  background-color: var(--bb-accent);
+  box-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
+}
+
+/* --- Selection Colors --- */
+
+::selection {
+  background-color: rgba(0, 255, 65, 0.3);
+  color: var(--bb-crit);
+}
+
+/* --- Focus Visible --- */
+
+:focus-visible {
+  outline: 1px solid var(--bb-primary);
+  outline-offset: 2px;
+}

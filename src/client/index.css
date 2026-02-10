@@ -1,0 +1,1628 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   Binary Boxer — Visual Identity
+   Language-driven color system / Boxing ring metaphor
+   Mobile-first / Anti-AI-default
+   ============================================================ */
+
+/* --- 1. Design Tokens ---------------------------------------- */
+
+:root {
+  /* Matrix green — used by terminal-style components */
+  --bb-primary: #00ff41;
+  --bb-grid: #0d2818;
+
+  /* Neutral chrome — the ring, the UI shell */
+  --bb-bg: #12141a;
+  --bb-bg-warm: #15171e;
+  --bb-surface: #1c1f27;
+  --bb-surface-raised: #252830;
+  --bb-surface-hover: #2c303a;
+  --bb-border: #2e323c;
+  --bb-border-bright: #3d4250;
+  --bb-ring-rope: #3d4250;
+
+  /* Text hierarchy */
+  --bb-text: #e8e6e3;
+  --bb-text-secondary: #9ca3af;
+  --bb-text-muted: #6b7280;
+  --bb-text-dim: #4b5060;
+
+  /* Combat accents */
+  --bb-damage: #ef4444;
+  --bb-damage-glow: rgb(239 68 68 / 40%);
+  --bb-crit: #fbbf24;
+  --bb-crit-glow: rgb(251 191 36 / 50%);
+  --bb-heal: #34d399;
+  --bb-heal-glow: rgb(52 211 153 / 30%);
+  --bb-block: #60a5fa;
+  --bb-miss: #6b7280;
+
+  /* Player health — shifts as HP drops */
+  --bb-hp-high: #4a9eff;
+  --bb-hp-mid: #e8a52b;
+  --bb-hp-low: #ef4444;
+  --bb-hp-bg: #1a1c22;
+
+  /* Enemy */
+  --bb-enemy: #c44536;
+  --bb-enemy-dim: rgb(196 69 54 / 40%);
+  --bb-enemy-glow: rgb(196 69 54 / 25%);
+  --bb-hp-enemy: #ff0040;
+  --bb-boss: #ff6b35;
+
+  /* XP & progression */
+  --bb-xp: #d4a843;
+  --bb-xp-glow: rgb(212 168 67 / 30%);
+  --bb-levelup: #fbbf24;
+
+  /* Companions */
+  --bb-veil: #7c5cbf;
+  --bb-echo: #00d4aa;
+  --bb-kindred: #d4a843;
+
+  /* Language brand colors — THE identity system */
+  --bb-lang-rust: #ce422b;
+  --bb-lang-javascript: #f7df1e;
+  --bb-lang-python: #3776ab;
+  --bb-lang-cpp: #00599c;
+  --bb-lang-css: #264de4;
+  --bb-lang-go: #00add8;
+  --bb-lang-typescript: #3178c6;
+  --bb-lang-c: #a8b9cc;
+  --bb-lang-haskell: #5e5086;
+  --bb-lang-lua: #2c2d72;
+
+  /* Dynamic — set by JS based on player's languages */
+  --bb-lang1: var(--bb-lang-rust);
+  --bb-lang2: var(--bb-lang-go);
+
+  /* Spacing scale */
+  --bb-space-xs: 0.25rem;
+  --bb-space-sm: 0.5rem;
+  --bb-space-md: 0.75rem;
+  --bb-space-lg: 1rem;
+  --bb-space-xl: 1.5rem;
+  --bb-space-2xl: 2rem;
+
+  /* Radii */
+  --bb-radius-sm: 4px;
+  --bb-radius-md: 6px;
+  --bb-radius-lg: 10px;
+  --bb-radius-full: 9999px;
+
+  /* Shadows */
+  --bb-shadow-sm: 0 1px 3px rgb(0 0 0 / 30%);
+  --bb-shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
+  --bb-shadow-glow: 0 0 20px rgb(74 158 255 / 15%);
+
+  /* Timing */
+  --bb-duration-fast: 100ms;
+  --bb-duration-normal: 200ms;
+  --bb-duration-slow: 400ms;
+  --bb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --bb-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Typography */
+  --bb-font-display: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bb-font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bb-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* --- 2. Base & Typography ------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--bb-font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--bb-text);
+  background: var(--bb-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Display headers — uppercase, tracked, industrial stamp feel */
+.bb-title {
+  font-family: var(--bb-font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.bb-heading {
+  font-family: var(--bb-font-display);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+/* Monospace — data density zones only */
+.bb-mono {
+  font-family: var(--bb-font-mono);
+  font-size: 0.85em;
+  font-feature-settings: 'liga' 0;
+}
+
+/* Damage numbers — BIG, bold, satisfying */
+.bb-damage-num {
+  font-family: var(--bb-font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* --- 3. App Shell & Screens ---------------------------------- */
+
+.bb-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgb(74 158 255 / 4%), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgb(196 69 54 / 4%), transparent 60%),
+    var(--bb-bg);
+}
+
+.bb-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--bb-space-md);
+}
+
+/* --- 4. Panel / Card System ---------------------------------- */
+
+.bb-panel {
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: var(--bb-space-md);
+  position: relative;
+}
+
+.bb-panel--raised {
+  background: var(--bb-surface-raised);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+.bb-panel--glowing {
+  box-shadow: var(--bb-shadow-glow);
+  border-color: var(--bb-border-bright);
+}
+
+/* Rivet dots at panel corners — industrial texture */
+.bb-panel--riveted::before,
+.bb-panel--riveted::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--bb-border-bright);
+}
+
+.bb-panel--riveted::before {
+  top: 6px;
+  left: 6px;
+  box-shadow: calc(100% - 12px) 0 0 0 var(--bb-border-bright);
+}
+
+.bb-panel--riveted::after {
+  bottom: 6px;
+  left: 6px;
+  box-shadow: calc(100% - 12px) 0 0 0 var(--bb-border-bright);
+}
+
+/* Metal grain texture overlay */
+.bb-texture {
+  position: relative;
+}
+
+.bb-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-size: 128px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+}
+
+/* --- 5. Fight Screen — The Ring ------------------------------ */
+
+.bb-ring {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bb-space-sm);
+  min-height: 0;
+}
+
+/* Enemy area — top of ring */
+.bb-fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--bb-space-xs);
+  padding: var(--bb-space-sm) 0;
+}
+
+.bb-fighter--enemy .bb-fighter-name {
+  color: var(--bb-enemy);
+}
+
+.bb-fighter--player .bb-fighter-name {
+  color: var(--bb-text);
+}
+
+.bb-fighter-name {
+  font-family: var(--bb-font-display);
+  font-weight: 800;
+  font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bb-fighter-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--bb-space-sm);
+  font-size: 0.75rem;
+  color: var(--bb-text-secondary);
+}
+
+/* The ring ropes — horizontal divider */
+.bb-ropes {
+  display: flex;
+  align-items: center;
+  gap: var(--bb-space-sm);
+  padding: var(--bb-space-xs) 0;
+}
+
+.bb-ropes::before,
+.bb-ropes::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--bb-ring-rope) 20%,
+    var(--bb-ring-rope) 80%,
+    transparent
+  );
+}
+
+.bb-ropes-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--bb-text-muted);
+  flex-shrink: 0;
+}
+
+/* --- 6. Health Bars — Energy Gauges -------------------------- */
+
+.bb-hp {
+  width: 100%;
+  height: 10px;
+  background: var(--bb-hp-bg);
+  border-radius: var(--bb-radius-full);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--bb-border);
+}
+
+.bb-hp-fill {
+  height: 100%;
+  border-radius: var(--bb-radius-full);
+  transition: width var(--bb-duration-slow) var(--bb-ease-out);
+  position: relative;
+}
+
+/* Player HP: blue → amber → red as HP drops */
+.bb-hp--player .bb-hp-fill {
+  background: var(--bb-hp-high);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 15%);
+}
+
+.bb-hp--player.bb-hp--mid .bb-hp-fill {
+  background: var(--bb-hp-mid);
+}
+
+.bb-hp--player.bb-hp--low .bb-hp-fill {
+  background: var(--bb-hp-low);
+  animation: bb-hp-pulse 0.8s ease-in-out infinite;
+}
+
+/* Enemy HP: solid red */
+.bb-hp--enemy .bb-hp-fill {
+  background: var(--bb-enemy);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+
+.bb-hp-text {
+  font-family: var(--bb-font-mono);
+  font-size: 0.7rem;
+  color: var(--bb-text-secondary);
+  margin-top: 2px;
+}
+
+/* --- 7. Robot Avatar — Language-Colored Identity -------------- */
+
+.bb-robot {
+  width: clamp(64px, 18vw, 96px);
+  height: clamp(72px, 20vw, 108px);
+  border-radius: var(--bb-radius-md);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Player robot uses language colors */
+.bb-robot--player {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bb-lang1) 30%, var(--bb-surface)),
+    color-mix(in srgb, var(--bb-lang2) 20%, var(--bb-surface))
+  );
+  border: 2px solid color-mix(in srgb, var(--bb-lang1) 50%, var(--bb-border));
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--bb-lang1) 15%, transparent),
+    inset 0 0 15px rgb(0 0 0 / 30%);
+}
+
+/* Enemy robot — red-tinted */
+.bb-robot--enemy {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bb-enemy) 25%, var(--bb-surface)),
+    var(--bb-surface)
+  );
+  border: 2px solid var(--bb-enemy-dim);
+  box-shadow:
+    0 0 15px var(--bb-enemy-glow),
+    inset 0 0 15px rgb(0 0 0 / 30%);
+}
+
+/* Robot eye — the glowing core */
+.bb-robot-eye {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: bb-eye-pulse 2.5s ease-in-out infinite;
+}
+
+.bb-robot--player .bb-robot-eye {
+  background: var(--bb-lang1);
+  box-shadow: 0 0 8px var(--bb-lang1), 0 0 20px color-mix(in srgb, var(--bb-lang1) 40%, transparent);
+}
+
+.bb-robot--enemy .bb-robot-eye {
+  background: var(--bb-enemy);
+  box-shadow: 0 0 8px var(--bb-enemy), 0 0 20px var(--bb-enemy-glow);
+}
+
+/* Companion orbs */
+.bb-companions {
+  display: flex;
+  gap: var(--bb-space-xs);
+  justify-content: center;
+}
+
+.bb-companion-orb {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: bb-companion-float 3s ease-in-out infinite;
+}
+
+.bb-companion-orb--veil {
+  background: var(--bb-veil);
+  box-shadow: 0 0 6px var(--bb-veil);
+}
+
+.bb-companion-orb--echo {
+  background: var(--bb-echo);
+  box-shadow: 0 0 6px var(--bb-echo);
+  animation-delay: -1s;
+}
+
+.bb-companion-orb--kindred {
+  background: var(--bb-kindred);
+  box-shadow: 0 0 6px var(--bb-kindred);
+  animation-delay: -2s;
+}
+
+/* --- 8. Combat Log ------------------------------------------- */
+
+.bb-log {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--bb-font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  max-height: 6rem;
+  overflow-y: auto;
+  padding: var(--bb-space-sm);
+  background: var(--bb-surface);
+  border-radius: var(--bb-radius-sm);
+  border: 1px solid var(--bb-border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bb-border) transparent;
+}
+
+.bb-log-line {
+  opacity: 0;
+  transform: translateY(4px);
+  animation: bb-slide-in var(--bb-duration-normal) var(--bb-ease-out) forwards;
+  color: var(--bb-text-secondary);
+}
+
+.bb-log-line--player {
+  color: var(--bb-text);
+}
+
+.bb-log-line--enemy {
+  color: var(--bb-enemy);
+}
+
+.bb-log-line--crit {
+  color: var(--bb-crit);
+  font-weight: 600;
+}
+
+.bb-log-line--miss {
+  color: var(--bb-text-muted);
+  font-style: italic;
+}
+
+.bb-log-line--system {
+  color: var(--bb-text-dim);
+  text-align: center;
+}
+
+/* --- 9. Action Buttons --------------------------------------- */
+
+.bb-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: var(--bb-space-sm);
+  padding: var(--bb-space-sm) 0;
+}
+
+.bb-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--bb-space-sm) var(--bb-space-md);
+  min-height: 48px;
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  cursor: pointer;
+  transition:
+    background var(--bb-duration-fast),
+    border-color var(--bb-duration-fast),
+    transform var(--bb-duration-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-action:active {
+  transform: scale(0.96);
+}
+
+.bb-action:hover {
+  background: var(--bb-surface-hover);
+  border-color: var(--bb-border-bright);
+}
+
+.bb-action--primary {
+  border-color: var(--bb-hp-high);
+  box-shadow: 0 0 10px rgb(74 158 255 / 10%);
+}
+
+.bb-action--primary:hover {
+  border-color: var(--bb-hp-high);
+  box-shadow: 0 0 15px rgb(74 158 255 / 20%);
+}
+
+.bb-action-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bb-action-risk {
+  font-size: 0.65rem;
+  color: var(--bb-text-muted);
+}
+
+.bb-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Action timer ring */
+.bb-timer {
+  font-family: var(--bb-font-mono);
+  font-size: 0.7rem;
+  color: var(--bb-text-muted);
+  text-align: center;
+  padding-top: var(--bb-space-xs);
+}
+
+.bb-timer-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--bb-border);
+  border-radius: var(--bb-radius-full);
+  overflow: hidden;
+  margin-top: var(--bb-space-xs);
+}
+
+.bb-timer-fill {
+  height: 100%;
+  background: var(--bb-hp-high);
+  border-radius: var(--bb-radius-full);
+  transition: width 100ms linear;
+}
+
+.bb-timer-fill--urgent {
+  background: var(--bb-hp-low);
+}
+
+/* --- 10. Damage Floats --------------------------------------- */
+
+.bb-float {
+  position: absolute;
+  font-family: var(--bb-font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: 50;
+  animation: bb-float-up 900ms var(--bb-ease-out) forwards;
+}
+
+.bb-float--player-hit {
+  color: var(--bb-damage);
+  text-shadow: 0 2px 8px var(--bb-damage-glow);
+}
+
+.bb-float--enemy-hit {
+  color: var(--bb-hp-high);
+  text-shadow: 0 2px 8px rgb(74 158 255 / 40%);
+}
+
+.bb-float--crit {
+  color: var(--bb-crit);
+  font-size: 2rem;
+  text-shadow: 0 2px 12px var(--bb-crit-glow);
+}
+
+.bb-float--miss {
+  color: var(--bb-miss);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.bb-float--heal {
+  color: var(--bb-heal);
+  text-shadow: 0 2px 8px var(--bb-heal-glow);
+}
+
+.bb-float--block {
+  color: var(--bb-block);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* --- 11. Robot Creation — Language Cards ---------------------- */
+
+.bb-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--bb-space-sm);
+}
+
+.bb-lang-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bb-space-xs);
+  padding: var(--bb-space-md);
+  background: var(--bb-surface);
+  border: 2px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  cursor: pointer;
+  transition:
+    border-color var(--bb-duration-fast),
+    box-shadow var(--bb-duration-fast),
+    transform var(--bb-duration-fast);
+}
+
+.bb-lang-card:hover {
+  border-color: var(--bb-border-bright);
+  transform: translateY(-1px);
+}
+
+.bb-lang-card--selected {
+  border-color: var(--bb-lang-accent, var(--bb-hp-high));
+  box-shadow: 0 0 15px color-mix(in srgb, var(--bb-lang-accent, var(--bb-hp-high)) 20%, transparent);
+  background: color-mix(in srgb, var(--bb-lang-accent, var(--bb-hp-high)) 8%, var(--bb-surface));
+}
+
+.bb-lang-card--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bb-lang-name {
+  font-family: var(--bb-font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bb-lang-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--bb-space-xs);
+  vertical-align: middle;
+}
+
+.bb-lang-flavour {
+  font-size: 0.72rem;
+  color: var(--bb-text-secondary);
+  line-height: 1.4;
+}
+
+.bb-lang-stat {
+  font-family: var(--bb-font-mono);
+  font-size: 0.65rem;
+  color: var(--bb-text-muted);
+}
+
+/* --- 12. Corner Phase ---------------------------------------- */
+
+.bb-corner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bb-space-md);
+}
+
+.bb-corner-header {
+  text-align: center;
+  padding: var(--bb-space-sm) 0;
+}
+
+.bb-corner-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--bb-space-sm);
+}
+
+.bb-corner-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--bb-space-xs);
+  padding: var(--bb-space-md);
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  cursor: pointer;
+  transition:
+    background var(--bb-duration-fast),
+    border-color var(--bb-duration-fast);
+}
+
+.bb-corner-btn:hover:not(:disabled) {
+  background: var(--bb-surface-hover);
+  border-color: var(--bb-border-bright);
+}
+
+.bb-corner-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.bb-corner-btn-label {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bb-corner-btn-desc {
+  font-size: 0.65rem;
+  color: var(--bb-text-muted);
+}
+
+/* Stats panel in corner */
+.bb-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--bb-space-xs) var(--bb-space-md);
+}
+
+.bb-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 2px 0;
+}
+
+.bb-stat-label {
+  color: var(--bb-text-secondary);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+.bb-stat-value {
+  font-family: var(--bb-font-mono);
+  font-weight: 600;
+  color: var(--bb-text);
+}
+
+/* XP bar */
+.bb-xp-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bb-hp-bg);
+  border-radius: var(--bb-radius-full);
+  overflow: hidden;
+}
+
+.bb-xp-fill {
+  height: 100%;
+  background: var(--bb-xp);
+  border-radius: var(--bb-radius-full);
+  transition: width var(--bb-duration-slow) var(--bb-ease-out);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+
+/* --- 13. Level Badge ----------------------------------------- */
+
+.bb-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--bb-font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: var(--bb-radius-sm);
+  border: 1px solid var(--bb-border);
+  color: var(--bb-text-secondary);
+  background: var(--bb-surface);
+}
+
+.bb-level--boss {
+  border-color: var(--bb-crit);
+  color: var(--bb-crit);
+  background: rgb(251 191 36 / 8%);
+}
+
+/* --- 14. Name Input ------------------------------------------ */
+
+.bb-input {
+  width: 100%;
+  padding: var(--bb-space-sm) var(--bb-space-md);
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  color: var(--bb-text);
+  font-family: var(--bb-font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--bb-duration-fast);
+}
+
+.bb-input:focus {
+  border-color: var(--bb-hp-high);
+  box-shadow: 0 0 10px rgb(74 158 255 / 10%);
+}
+
+.bb-input::placeholder {
+  color: var(--bb-text-dim);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+/* --- 15. Primary Button -------------------------------------- */
+
+.bb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bb-space-sm);
+  padding: var(--bb-space-sm) var(--bb-space-xl);
+  min-height: 44px;
+  font-family: var(--bb-font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--bb-border-bright);
+  border-radius: var(--bb-radius-md);
+  background: var(--bb-surface-raised);
+  color: var(--bb-text);
+  cursor: pointer;
+  transition:
+    background var(--bb-duration-fast),
+    border-color var(--bb-duration-fast),
+    transform var(--bb-duration-fast);
+}
+
+.bb-btn:hover:not(:disabled) {
+  background: var(--bb-surface-hover);
+  border-color: var(--bb-text-muted);
+}
+
+.bb-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.bb-btn--primary {
+  background: var(--bb-hp-high);
+  border-color: var(--bb-hp-high);
+  color: #fff;
+}
+
+.bb-btn--primary:hover:not(:disabled) {
+  background: #3b8ee6;
+  border-color: #3b8ee6;
+}
+
+.bb-btn--danger {
+  border-color: var(--bb-enemy-dim);
+  color: var(--bb-enemy);
+}
+
+.bb-btn--danger:hover:not(:disabled) {
+  background: rgb(196 69 54 / 12%);
+  border-color: var(--bb-enemy);
+}
+
+.bb-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- 16. Splash (Inline Preview) ----------------------------- */
+
+.bb-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--bb-space-lg);
+  padding: var(--bb-space-lg);
+  text-align: center;
+}
+
+.bb-splash-title {
+  font-family: var(--bb-font-display);
+  font-weight: 900;
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--bb-text);
+  line-height: 1;
+}
+
+.bb-splash-subtitle {
+  font-size: 0.8rem;
+  color: var(--bb-text-secondary);
+  max-width: 28ch;
+}
+
+.bb-splash-stat {
+  font-family: var(--bb-font-mono);
+  font-size: 0.75rem;
+  color: var(--bb-text-muted);
+  padding: var(--bb-space-xs) var(--bb-space-md);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-full);
+}
+
+/* --- 17. Result Screen --------------------------------------- */
+
+.bb-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bb-space-lg);
+  padding: var(--bb-space-2xl);
+  text-align: center;
+}
+
+.bb-result-title {
+  font-family: var(--bb-font-display);
+  font-weight: 900;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.bb-result-title--win {
+  color: var(--bb-xp);
+  text-shadow: 0 0 20px var(--bb-xp-glow);
+}
+
+.bb-result-title--loss {
+  color: var(--bb-enemy);
+  text-shadow: 0 0 20px var(--bb-enemy-glow);
+}
+
+.bb-result-stat {
+  font-family: var(--bb-font-mono);
+  font-size: 0.8rem;
+  color: var(--bb-text-secondary);
+}
+
+.bb-result-xp {
+  font-family: var(--bb-font-display);
+  font-weight: 700;
+  color: var(--bb-xp);
+}
+
+/* --- 18. Animations ------------------------------------------ */
+
+/* Hit shake — exaggerated for small viewport */
+@keyframes bb-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-5px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+
+.bb-shake {
+  animation: bb-shake 200ms ease-out;
+}
+
+/* Crit impact — scale punch */
+@keyframes bb-crit-punch {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.bb-crit-impact {
+  animation: bb-crit-punch 300ms var(--bb-ease-bounce);
+}
+
+/* Crit flash overlay */
+@keyframes bb-flash {
+  0% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+.bb-crit-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgb(251 191 36 / 15%);
+  animation: bb-flash 150ms ease-out forwards;
+  pointer-events: none;
+  z-index: 40;
+  border-radius: inherit;
+}
+
+/* Damage float up */
+@keyframes bb-float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  20% {
+    transform: translateY(-8px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-32px) scale(0.8);
+  }
+}
+
+/* Health bar pulse at low HP */
+@keyframes bb-hp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Robot eye pulse */
+@keyframes bb-eye-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+/* Companion float */
+@keyframes bb-companion-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Slide in from bottom */
+@keyframes bb-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in screen */
+@keyframes bb-screen-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-screen-enter {
+  animation: bb-screen-enter 300ms var(--bb-ease-out);
+}
+
+/* Level up gold burst */
+@keyframes bb-levelup-glow {
+  0% {
+    box-shadow: 0 0 0 0 var(--bb-xp-glow);
+  }
+  50% {
+    box-shadow: 0 0 30px 10px var(--bb-xp-glow);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--bb-xp-glow);
+  }
+}
+
+.bb-levelup {
+  animation: bb-levelup-glow 600ms ease-out;
+}
+
+/* KO — desaturate and tilt */
+@keyframes bb-ko {
+  0% {
+    filter: saturate(1);
+    transform: rotate(0);
+  }
+  100% {
+    filter: saturate(0.2);
+    transform: rotate(5deg) translateY(4px);
+  }
+}
+
+.bb-ko {
+  animation: bb-ko 500ms ease-out forwards;
+}
+
+/* Loading spinner */
+@keyframes bb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.bb-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bb-border);
+  border-top-color: var(--bb-hp-high);
+  border-radius: 50%;
+  animation: bb-spin 0.8s linear infinite;
+}
+
+/* --- 19. Language Accent Classes ----------------------------- */
+
+.bb-lang-accent-rust { --bb-lang-accent: var(--bb-lang-rust); }
+.bb-lang-accent-javascript { --bb-lang-accent: var(--bb-lang-javascript); }
+.bb-lang-accent-python { --bb-lang-accent: var(--bb-lang-python); }
+.bb-lang-accent-cpp { --bb-lang-accent: var(--bb-lang-cpp); }
+.bb-lang-accent-css { --bb-lang-accent: var(--bb-lang-css); }
+.bb-lang-accent-go { --bb-lang-accent: var(--bb-lang-go); }
+.bb-lang-accent-typescript { --bb-lang-accent: var(--bb-lang-typescript); }
+.bb-lang-accent-c { --bb-lang-accent: var(--bb-lang-c); }
+.bb-lang-accent-haskell { --bb-lang-accent: var(--bb-lang-haskell); }
+.bb-lang-accent-lua { --bb-lang-accent: var(--bb-lang-lua); }
+
+/* --- 20. Responsive ------------------------------------------ */
+
+/* Desktop: side-by-side fighters */
+@media (min-width: 640px) {
+  .bb-ring-fighters {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--bb-space-lg);
+  }
+
+  .bb-ring-fighters .bb-ropes {
+    flex-direction: column;
+    height: 100%;
+    padding: 0 var(--bb-space-xs);
+  }
+
+  .bb-ring-fighters .bb-ropes::before,
+  .bb-ring-fighters .bb-ropes::after {
+    width: 1px;
+    height: auto;
+    flex: 1;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      var(--bb-ring-rope) 20%,
+      var(--bb-ring-rope) 80%,
+      transparent
+    );
+  }
+
+  .bb-log {
+    max-height: 10rem;
+  }
+
+  .bb-lang-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bb-corner-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bb-stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Fluid typography */
+.bb-fluid-sm { font-size: clamp(0.7rem, 2vw, 0.8rem); }
+.bb-fluid-base { font-size: clamp(0.8rem, 2.5vw, 1rem); }
+.bb-fluid-lg { font-size: clamp(1rem, 3vw, 1.25rem); }
+.bb-fluid-xl { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+
+/* --- 21. Utilities ------------------------------------------- */
+
+.bb-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-fade-in {
+  animation: bb-slide-in 200ms var(--bb-ease-out);
+}
+
+.bb-text-center { text-align: center; }
+
+.bb-gap-xs { gap: var(--bb-space-xs); }
+.bb-gap-sm { gap: var(--bb-space-sm); }
+.bb-gap-md { gap: var(--bb-space-md); }
+.bb-gap-lg { gap: var(--bb-space-lg); }
+
+/* --- 22. CRT Theme Overrides -------------------------------- */
+
+:root {
+  --bb-primary: #00ff41;
+  --bb-grid: #0d2818;
+  --bb-bg: #0a0a0a;
+  --bb-bg-warm: #0a0a0a;
+  --bb-surface: #0d140f;
+  --bb-surface-raised: #101912;
+  --bb-surface-hover: #122118;
+  --bb-border: rgb(0 255 65 / 20%);
+  --bb-border-bright: rgb(0 180 216 / 36%);
+  --bb-ring-rope: rgb(0 255 65 / 28%);
+  --bb-text: #00ff41;
+  --bb-text-secondary: rgb(0 255 65 / 68%);
+  --bb-text-muted: rgb(0 255 65 / 52%);
+  --bb-text-dim: rgb(0 255 65 / 34%);
+  --bb-damage: #ff0040;
+  --bb-enemy: #ff0040;
+  --bb-hp-enemy: #ff0040;
+  --bb-boss: #ff6b35;
+  --bb-accent: #ff6b35;
+  --bb-secondary: #00b4d8;
+  --bb-hp-high: #00ff41;
+  --bb-hp-mid: #ff6b35;
+  --bb-hp-low: #ff0040;
+  --bb-hp-bg: rgb(0 0 0 / 70%);
+  --bb-xp: #f5c04a;
+  --bb-font-display:
+    'JetBrains Mono',
+    'Fira Code',
+    'Cascadia Code',
+    'Consolas',
+    'Courier New',
+    monospace;
+  --bb-font-body:
+    'JetBrains Mono',
+    'Fira Code',
+    'Cascadia Code',
+    'Consolas',
+    'Courier New',
+    monospace;
+  --bb-font-mono:
+    'JetBrains Mono',
+    'Fira Code',
+    'Cascadia Code',
+    'Consolas',
+    'Courier New',
+    monospace;
+}
+
+body {
+  background:
+    radial-gradient(circle at 15% 20%, rgb(0 180 216 / 8%), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgb(255 107 53 / 8%), transparent 45%),
+    var(--bb-bg);
+}
+
+.bb-app {
+  position: relative;
+}
+
+.bb-app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0.2;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0%) 0,
+    rgb(0 0 0 / 0%) 1px,
+    rgb(0 255 65 / 10%) 1px,
+    rgb(0 255 65 / 10%) 2px
+  );
+}
+
+.bb-app > * {
+  position: relative;
+  z-index: 1;
+}
+
+.bb-panel {
+  box-shadow:
+    inset 0 0 24px rgb(0 255 65 / 4%),
+    0 0 8px rgb(0 255 65 / 8%);
+}
+
+.bb-crt {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--bb-border);
+  background: rgb(10 10 10 / 92%);
+}
+
+.bb-crt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0.12;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0%) 0,
+    rgb(0 0 0 / 0%) 1px,
+    rgb(0 255 65 / 12%) 1px,
+    rgb(0 255 65 / 12%) 2px
+  );
+}
+
+.bb-binary-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bb-binary-rain::before {
+  content: '010011100110111101110111001000000100011001101001011001110110100001110100';
+  position: absolute;
+  inset: -25% 0;
+  color: rgb(0 255 65 / 8%);
+  letter-spacing: 0.18rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  animation: bb-rain-drift 12s linear infinite;
+}
+
+.bb-shell-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 2fr) minmax(220px, 1fr);
+  gap: var(--bb-space-md);
+}
+
+.bb-health-track {
+  width: 100%;
+  height: 10px;
+  border: 1px solid rgb(0 255 65 / 30%);
+  background: rgb(0 0 0 / 65%);
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.bb-health-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transition: transform 300ms ease;
+  will-change: transform;
+}
+
+.bb-number-glow {
+  color: var(--bb-text);
+  text-shadow:
+    0 0 6px rgb(0 255 65 / 52%),
+    0 0 14px rgb(0 255 65 / 30%);
+}
+
+.bb-level-pill {
+  border: 1px solid rgb(0 180 216 / 35%);
+  color: var(--bb-secondary);
+  font-size: 0.72rem;
+  padding: 0.08rem 0.42rem;
+  margin-left: 0.3rem;
+}
+
+.bb-ascii-title {
+  text-shadow:
+    0 0 10px rgb(0 255 65 / 35%),
+    0 0 18px rgb(0 255 65 / 20%);
+}
+
+.bb-stat-pulse {
+  animation: bb-stat-pulse 2s ease-in-out infinite;
+}
+
+.bb-log-line {
+  animation: bb-log-slide-in 200ms ease-out forwards;
+}
+
+.bb-float {
+  animation: bb-float-up 1s ease-out forwards;
+}
+
+.bb-player-float {
+  color: var(--bb-text);
+}
+
+.bb-enemy-float {
+  color: var(--bb-enemy);
+  text-shadow: 0 0 10px rgb(255 0 64 / 30%);
+}
+
+.bb-crit-float {
+  color: #ffd166;
+  text-shadow: 0 0 12px rgb(255 209 102 / 35%);
+}
+
+.bb-crit-overlay {
+  background: rgb(255 255 255 / 80%);
+  animation: bb-white-flash 100ms ease-out forwards;
+}
+
+.bb-cursor {
+  animation: bb-cursor-blink 1s steps(1, end) infinite;
+}
+
+.bb-stat-bar-text {
+  font-family: var(--bb-font-mono);
+  font-size: 0.78rem;
+  color: rgb(0 255 65 / 82%);
+}
+
+@keyframes bb-stat-pulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 5px rgb(0 255 65 / 40%),
+      0 0 10px rgb(0 255 65 / 20%);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgb(0 255 65 / 70%),
+      0 0 24px rgb(0 255 65 / 35%);
+  }
+}
+
+@keyframes bb-log-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bb-float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px);
+  }
+}
+
+@keyframes bb-white-flash {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bb-cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bb-rain-drift {
+  from {
+    transform: translateY(-12%);
+  }
+  to {
+    transform: translateY(12%);
+  }
+}
+
+@media (max-width: 900px) {
+  .bb-shell-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- 23. Boss Intro ----------------------------------------- */
+
+.bb-boss-mode {
+  background:
+    radial-gradient(circle at 50% 0%, rgb(255 0 64 / 12%), transparent 55%),
+    linear-gradient(180deg, rgb(26 0 0 / 85%), rgb(10 10 10 / 95%));
+  border-color: rgb(244 163 0 / 40%);
+}
+
+.bb-boss-intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 25%, rgb(255 0 64 / 20%), rgb(26 0 0 / 96%)),
+    rgb(26 0 0 / 95%);
+  animation: bb-boss-flicker 220ms steps(2, end) infinite;
+}
+
+.bb-boss-intro-flicker {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.25;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0%) 0,
+    rgb(255 255 255 / 0%) 2px,
+    rgb(255 255 255 / 16%) 2px,
+    rgb(255 255 255 / 16%) 3px
+  );
+}
+
+.bb-boss-intro-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.bb-boss-title {
+  color: #ff6f59;
+  font-size: 0.72rem;
+  line-height: 1;
+  text-shadow:
+    0 0 12px rgb(255 111 89 / 45%),
+    0 0 24px rgb(255 0 64 / 25%);
+  white-space: pre;
+}
+
+.bb-boss-tagline {
+  color: #ffc06a;
+  font-size: 0.78rem;
+  text-align: center;
+  text-shadow: 0 0 10px rgb(255 192 106 / 30%);
+}
+
+.bb-boss-portrait {
+  color: rgb(255 0 64 / 92%);
+  font-size: 0.66rem;
+  line-height: 0.95;
+  text-shadow: 0 0 10px rgb(255 0 64 / 30%);
+}
+
+@keyframes bb-boss-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  35% {
+    opacity: 0.85;
+  }
+  62% {
+    opacity: 0.92;
+  }
+}
