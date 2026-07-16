@@ -1,0 +1,78 @@
+# Binary Boxer — Build Log
+
+> Durable memory for the rebuild, per `docs/plans/fable-build-loop.md` §5.
+> One entry per increment: what changed, why, evidence, new decisions/risks.
+> Re-read this + the spec + the triage map at the start of every iteration.
+
+---
+
+## 2026-07-16 — Gate 0 kickoff (ORIENT + PLAN)
+
+**Pre-flight:** clean tree; `prep/donor-cleanup` == `main` (ebbf280, merge no-op);
+tag `pre-rebuild-baseline` already existed, annotated, peels to ebbf280, already on
+origin — left untouched. Baseline green: type-check ✓, 84/84 tests ✓, build ✓ (2.9s).
+
+**Branch:** `rebuild/gate-0`.
+
+### Gate 0 increment map
+
+| # | Increment | Commit type |
+|---|-----------|-------------|
+| 1 | This build log | docs |
+| 2 | Devvit 0.12.12 → 0.13.8 (separate, per spec §7 Gate 0 line 1) | chore |
+| 3 | devvit.json permissions: redis + reddit, realtime OFF | feat |
+| 4 | zod contracts: `src/shared/contracts/` (fight protocol, profile record, common) | feat |
+| 5 | persistence kit: `src/server/persistence/` (scoped keys, versioned records, migrations, store port) | feat |
+| 6 | profile module: `src/server/profile/` (growth sources → derived stats) | feat |
+| 7 | fight engine core: `src/server/fight/` (RNG, minimal deterministic resolution) | feat |
+| 8 | fight command service + `/api/fight` routes — **cutover commit** (deletes old combat routes/engines) | feat |
+| 9 | balance simulation harness + gates | feat/test |
+| 10 | wrap: verify, log, STOP report | docs |
+
+### Load-bearing decisions made at PLAN time
+
+1. **Gate 0 is a server-side cutover for the fight path; the client is untouched.**
+   New protocol lands at `/api/fight/*`; `routes/combat.ts`, `engine/combat.ts`,
+   `engine/enemy.ts` (all REPLACE, imported ONLY by the old combat routes) are deleted
+   in the same commit as the new service (REPLACE discipline). Consequence: the old
+   client fight flow is inert (its endpoints/contracts are gone) between Gate 0 and the
+   Gate 1 client wiring. The rest of the old app (init/create/corner/dynasty/leaderboard)
+   keeps working on old modules. This preserves "don't preserve doomed behaviour"
+   without dragging Gate 1 client work into Gate 0.
+
+2. **Files whose replacement completes at Gate 1 are NOT deleted at Gate 0.**
+   `engine/stats.ts`, `engine/inheritance.ts`, `shared/api.ts`, `shared/types.ts`,
+   `utils/redis.ts` still serve the live old (non-fight) routes and the old client.
+   They get no new importers: **no rebuild module imports any old module** (the only
+   allowed old imports are platform plumbing: `@devvit/web/server`, `logger.ts` — both KEEP).
+   `shared/api.ts` gets a LEGACY banner. Full deletion happens with the Gate 1 cutover.
+
+3. **Scoping fix**: Devvit Redis is already namespaced per installation, so the fix is
+   to *drop postId from persistent keys*: `profile:{username}`, `fight:{fightId}`,
+   `fight:active:{username}`, `challenge:{challengeId}:…`. Old post-scoped dev data is
+   NOT migrated (pre-launch dev data; assumption flagged in the Gate 0 report).
+
+4. **Atomicity**: Devvit Redis exposes optimistic transactions (`watch → multi → exec`).
+   The fight service is written against a narrow `KVStore` port; a `MemoryStore` with
+   real watch/multi/exec semantics makes idempotency + concurrency testable in vitest
+   (no @devvit/test dependency); a thin Devvit adapter binds it in production.
+
+5. **Interventions at Gate 0 = mechanism, not policy.** The phase machine fully supports
+   `awaiting_intervention` (it is in the spec §6 phase list) via an injectable pause rule;
+   production Gate 0 config never pauses (fights resolve in one batched advance). Gate 1
+   supplies real intervention policy. Same pattern for rewards: the resolve-once →
+   staged → acknowledge-once **pipeline shape** is Gate 0; fixed-budget growth
+   *attribution math* is Gate 1 (placeholder small fightLearning credit for now).
+
+6. **Legibility is schema-level from day one**: fight events carry a `reason` string in
+   the contract; the Gate 0 baseline policy emits mechanical reasons. The explainable
+   decision model (state + gameplan → move + narrated why) is Gate 1.
+
+7. **Gate 0 profile bootstrap bridge**: the new fight start creates a default
+   new-model profile when none exists (new code may not read old `PlayerState` —
+   `shared/types.ts` is REPLACE). Gate 1's creation/draft flow replaces the bootstrap.
+
+### Open questions carried toward the report
+
+- Old post-scoped dev data: fresh start assumed (no migration from old keys). Confirm.
+- `devvit playtest` verification may need the owner (interactive auth / long-running).
