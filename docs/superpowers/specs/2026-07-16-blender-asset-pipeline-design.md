@@ -133,7 +133,12 @@ token value so that base + illustrative self-lift *reads* on-token in the final 
    eyehole, welded tusks, bolt-earring, war paint crossing the torso seam; goblin kit isolated in
    the linked `BB_GoblinKit` collection so the wake swap = hide kit (+ later livery/tool). Evidence:
    `probe-renders/goblin-barrow-v2.png`, duo validation `probe-renders/duo-fight-bill.png`
-3. Hero fight poses (guard/lunge/hit/KO) + portrait crops → WebP export pass
+3. ~~Hero fight poses (guard/lunge/hit/KO) + portrait crops → WebP export pass~~ ✅ scripted,
+   rig-free posing (`scripts/hero-fight-poses.py`, non-destructive world-matrix transforms;
+   guard = peek-a-boo over the Heart-Gauge): 4 poses × L/R facing on transparent film +
+   lineage head portrait + gym portrait. Masters in `sprites/`, WebP in `exports/` —
+   every file 7.8–9.6 KB at 384/256 px (budget ≤80 KB). Facing pair is true 3/4 renders,
+   not mirrors: left-facing shows the spout (the punch tell) to the opponent
 4. Two more goblin ranks (one defensive, one tricky) + **goblin chief** (phased boss)
 5. Arena backdrop #1 (The Boiler Club) → then remaining three venues
 6. Rival transmission portrait
