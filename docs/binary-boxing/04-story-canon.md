@@ -99,12 +99,13 @@ different").
 
 ## 8. Flagged: redesign-decisions revision required
 
-`docs/plans/binaryboxer-redesign-decisions.md` assumes a single-fighter Manager Mode. The
-pivot adds: roster economy (hire/buy/sell), prestige (victory + entertainment scoring),
-fixture cards, ability/potential growth, staff system; and re-homes dynasty/integrity
-(proposal: integrity = the gym's lamps; a lost fixture = "they take a light"). **A dedicated
-decisions-revision session is required before Gate-0 progression code is built.** The fight
-engine, art pipeline, and story are unaffected and may proceed.
+`docs/plans/binaryboxer-redesign-decisions.md` assumes a single-fighter Manager Mode.
+**RESOLVED 2026-07-16:** the owner grilling session settled all seven decision branches —
+fixture format, matchup picking, prestige, entertainment scoring, ransom rules, purse,
+fighter DNA, lamps-and-generations run structure, and the Gate-0 "First Cup" slice. The
+authoritative log is `docs/plans/gym-pivot-decisions.md`; it supersedes the single-fighter
+framing while leaving that doc's engine-level decisions intact. The fight engine, art
+pipeline, and story are unaffected.
 
 ## 9. Open questions (owner, non-blocking for art)
 
