@@ -11,7 +11,7 @@ _Last audited: 2026-07-16. Rule: nothing ships without a row here._
 | Hero robot 3D model (`prototype/blender/bb-hero-gen1.blend`) | original, procedurally built in Blender 5.0.1 (2026-07-16 session) | project licence | ✅ |
 | Hero probe renders (`prototype/blender/probe-renders/*.png`) | original renders of the above model; no external assets, HDRIs, or textures used | project licence | ✅ |
 | Story plates (`prototype/blender/story-plates/*.png`) | original cel renders of our model; text set in OS-licensed Georgia (not embedded as a font file) | project licence | ✅ |
-| Character library (`prototype/blender/bb-characters.blend`: hero + goblin Barrow) + renders | original, procedurally built in Blender 5.0.1 (2026-07-16 session); no external assets | project licence | ✅ |
+| Character library (`prototype/blender/bb-characters.blend`: hero, goblin Barrow, Goblin Chief) + renders | original, procedurally built in Blender 5.0.1 (2026-07-16 sessions); no external assets | project licence | ✅ |
 | Hero fight-pose batch (`prototype/blender/sprites/*.png` masters, `exports/*.webp`) — guard/lunge/hit/KO × L/R, lineage + gym portraits | original renders of our model via `scripts/hero-fight-poses.py`; no external assets | project licence | ✅ |
 | Other binary media (audio/video) | **none in repo** | — | — |
 

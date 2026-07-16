@@ -139,10 +139,19 @@ token value so that base + illustrative self-lift *reads* on-token in the final 
    lineage head portrait + gym portrait. Masters in `sprites/`, WebP in `exports/` —
    every file 7.8–9.6 KB at 384/256 px (budget ≤80 KB). Facing pair is true 3/4 renders,
    not mirrors: left-facing shows the spout (the punch tell) to the opponent
-4. Two more goblin ranks (one defensive, one tricky) + **goblin chief** (phased boss)
+4. Two more goblin ranks (one defensive, one tricky) + ~~**goblin chief** (phased boss)~~ ✅ Chief
+   built (`BB_Chief`, kit in linked `BB_ChiefKit`, own Freestyle lineset): Foreman-crane chassis
+   truth (crawler tracks, brass slewing ring, counterweight, cab head, shoulder boom whose hook
+   carries the **series bell** — his future fixture-master tool), chief regalia (wide mask with
+   visor slit, four tusks, metal-feather war crest, mantle, trophy rope with a **stolen teacup**),
+   paint over the chest seam, twin bolt-earrings. Evidence: `probe-renders/goblin-chief.png`,
+   `probe-renders/first-series-lineup.png`. Staging note for boss-scale subjects: big flat panels
+   catch an axial key at full incidence — raise/steepen the key, trim key/fill (~70 W / 10 W),
+   and aim the key at the chest; recipe values stay canonical for hero-scale shots
 5. Arena backdrop #1 (The Boiler Club) → then remaining three venues
 6. Rival transmission portrait
-7. Props: integrity-token coin, work-lamp onboarding vignette, poster elements
+7. Props: integrity-token coin, work-lamp onboarding vignette, poster elements, **Barrow's
+   bucket** (sacred regalia + his full-bucket panic-guard tell — canon doc §3)
 
 ## 8. Out of scope (this spec)
 

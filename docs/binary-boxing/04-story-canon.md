@@ -58,6 +58,14 @@ and the leader wakes, joins the Kettleworks, and staffs one gym function:
 
 Leaders cannot be bought — only fought. Fighters can be either. Gate 0 slice = rows 1–4.
 
+**Barrow's bucket (canon, owner-approved 2026-07-16):** the corner bucket is Barrow's sacred
+regalia — the one thing that was ever *his*. He polishes it, presents it like a crown, offers it
+to fighters at the worst possible moments; when beaten and woken, his only request is to keep it.
+In bouts it is his behavioural tell: when his gauge runs low he **goes full bucket** — wears it
+over his head as a panic guard — so the comedy is also scouting evidence and a corner-call line
+("He's gone full bucket — he's hurt"). Register rule: bucket comedy is devotion-slapstick,
+**never toilet humour** — the tender beats must survive every gag.
+
 ## 4. Fighters: Remnants, ability, and the market
 
 - Every hireable/buyable fighter is a **Remnant of a hero** — a named helper machine with a
