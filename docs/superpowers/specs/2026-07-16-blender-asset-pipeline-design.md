@@ -79,8 +79,8 @@ T2's illustration language**. T2's cel recipe is retained for future book/print 
 - Materials (Principled): teal enamel rough 0.26 / coat 0.35; garnet rough 0.62; brass metallic
   rough 0.32; copper metallic rough 0.38. **Illustrative self-lift**: Emission Color = own base
   colour, strength 0.18 (enamels), 0.10–0.15 (copper/ivory). Amber eyes: emission 3.2
-- Ink line: Freestyle, hero collection only (`select_by_collection`, INCLUSIVE), colour
-  `#3a2a1c`, thickness 2.2 px @ 1080×1350
+- Ink line: Freestyle, one lineset per character collection (`select_by_collection`, INCLUSIVE):
+  `BB_Lines`→`BB_Hero`, `BB_GobLines`→`BB_Goblin`; colour `#3a2a1c`, thickness 2.2 px @ 1080×1350
 - Lights: warm key area 1.1 m ~95 W (1.0, 0.86, 0.70); cool fill 22 W; amber rim 130 W;
   warm pool spot on backdrop ~140 W
 - World: `#1f150c` strength 1.15
@@ -90,12 +90,19 @@ T2's illustration language**. T2's cel recipe is retained for future book/print 
 
 **Palette contract:** all colours come from `design-tokens.md` (teal `#2b8c82` family, garnet,
 brass `#c9963f`, copper `#b87352`, amber `#ffb84d`, ivory `#f2e4c8`, ink `#2b2118`); language
-identity later maps the 10 `--lang-*` hues onto enamel materials.
+identity later maps the 10 `--lang-*` hues onto enamel materials. Goblin additions are recorded
+there too: `--bb-gobble` `#b5cc4e` (Gobblestone lens glow, the enemy counterpart to amber) and the
+3D material extensions (leather/pine/rope/tusk/war-paint). Enamel bases may sit slightly under
+token value so that base + illustrative self-lift *reads* on-token in the final image.
 
 ## 5. Pipeline mechanics
 
 - **Authoring**: procedural `bpy` scripts via Blender MCP; every part is a named object in the
   `BB_Hero` collection → parts and materials swap cleanly (events, generations, languages).
+- **Kit convention (canon §6 wake swap)**: each goblin's costume parts are *linked* into a
+  `BB_<Name>Kit` child collection while remaining in the character collection (keeps Freestyle's
+  `select_by_collection` untouched). Woken form = hide the kit collection, add livery + signature
+  tool. Chassis-betraying details (bolt-earring, panel seams, lens) stay on the chassis.
 - **Source of truth**: `.blend` files under `prototype/blender/` during Gate 0 prototyping
   (production home decided in the implementation plan).
 - **Output**: PNG masters → WebP for the client. Budget (inline <1 s, Lighthouse >80):
@@ -121,7 +128,11 @@ identity later maps the 10 `--lang-*` hues onto enamel materials.
 ## 7. Asset inventory & order of production (input to the implementation plan)
 
 1. ~~Hero gen-1 model + T4 art direction~~ ✅ probe complete
-2. **Goblin grunt** (basic rank) in T4 — validates the two-design-language world
+2. ~~**Goblin grunt** (basic rank) in T4 — validates the two-design-language world~~ ✅ built as
+   **Barrow** (canon rank 1, `bb-characters.blend` `BB_Goblin`): pine mask with lens through the
+   eyehole, welded tusks, bolt-earring, war paint crossing the torso seam; goblin kit isolated in
+   the linked `BB_GoblinKit` collection so the wake swap = hide kit (+ later livery/tool). Evidence:
+   `probe-renders/goblin-barrow-v2.png`, duo validation `probe-renders/duo-fight-bill.png`
 3. Hero fight poses (guard/lunge/hit/KO) + portrait crops → WebP export pass
 4. Two more goblin ranks (one defensive, one tricky) + **goblin chief** (phased boss)
 5. Arena backdrop #1 (The Boiler Club) → then remaining three venues

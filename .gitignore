@@ -1,6 +1,9 @@
 node_modules/
 .DS_Store
 dist/
+
+# Blender auto-backup files
+*.blend[0-9]
 .env
 .env.*
 !.env.example

@@ -20,11 +20,16 @@ parchment for anything written by humans, and motion with real weight. Never neo
 | `--bb-garnet` / `-hi` | `#b04353` / `#d4687a` | opponents, rival, danger CTAs, gloves |
 | `--bb-royal`, `--bb-moss` | `#3d6fa8`, `#6d8a3f` | boss badges · wins/success |
 | `--bb-amber` | `#ffb84d` | energy: eyes, sparks, tokens, highlights |
+| `--bb-gobble` | `#b5cc4e` | Gobblestone energy: goblin lens-eyes, shard glow — the enemy counterpart to amber (3D-side today; add to `:root` when the UI first needs it) |
 | `--bb-parchment` / `--bb-ink` | `#f2e4c8` / `#2b2118` | human-written surfaces (scout notes, posters, toasts) |
 | `--lang-*` | 10 hues | language identity, re-tuned to enamel saturation (e.g. python `#4879a8`, css `#c25f8a`) |
 
 Rules: text on dark ≥ `--bb-text-dim` for body, `--bb-text-faint` only for whispers; parchment blocks
 always use `--bb-ink`; one garnet CTA per screen maximum (the ring walk).
+
+**3D material extensions** (Blender character pipeline, not in the UI `:root`): leather `#6b4a2f` ·
+pine mask `#cdb488` · rope `#96784f` · tusk `#e6ddc6` · war-paint `#8a3142` / `#e8e0cc`. Goblin iron
+uses `--bb-iron` exactly; goblin lens glow is `--bb-gobble`. Promote to `:root` only when the UI needs them.
 
 ## Typography
 
