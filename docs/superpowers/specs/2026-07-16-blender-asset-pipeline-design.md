@@ -139,7 +139,14 @@ token value so that base + illustrative self-lift *reads* on-token in the final 
    lineage head portrait + gym portrait. Masters in `sprites/`, WebP in `exports/` —
    every file 7.8–9.6 KB at 384/256 px (budget ≤80 KB). Facing pair is true 3/4 renders,
    not mirrors: left-facing shows the spout (the punch tell) to the opponent
-4. Two more goblin ranks (one defensive, one tricky) + ~~**goblin chief** (phased boss)~~ ✅ Chief
+4. ~~Two more goblin ranks (one defensive, one tricky)~~ ✅ **Ranger/Waymark** (tricky,
+   `BB_Ranger` + kit + lineset): stilt legs on spike feet, telescope eye under the hood,
+   map-tube "quiver" with marker flags, chevron trail-mark paint crossing the seam — evidence
+   `probe-renders/goblin-ranger.png`. **Guardian/Bulwark** (defensive, `BB_Guardian` + kit +
+   lineset): riveted wall torso, rope-bound, slit-visor turtle head, sluice **handwheel worn
+   as a shield** (his future Hold-the-Door emblem), anchor feet — evidence
+   `probe-renders/goblin-guardian.png`. Full Gate-0 roster: `probe-renders/first-cup-clan.png`.
+   + ~~**goblin chief** (phased boss)~~ ✅ Chief
    built (`BB_Chief`, kit in linked `BB_ChiefKit`, own Freestyle lineset): Foreman-crane chassis
    truth (crawler tracks, brass slewing ring, counterweight, cab head, shoulder boom whose hook
    carries the **series bell** — his future fixture-master tool), chief regalia (wide mask with
