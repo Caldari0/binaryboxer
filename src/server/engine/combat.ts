@@ -545,7 +545,7 @@ export const initFight = (
 
 export type RoundResult = {
   state: FightState;
-  playerTurn: FightTurn;
+  playerTurn: FightTurn | null;
   enemyTurn: FightTurn | null;
 };
 
@@ -648,7 +648,7 @@ export const resolveRound = (
     eHp = Math.max(0, eHp - firstResult.counterDamage);
     if (firstAction === 'combo' && !firstResult.dodged && pHp > 0) {
       const combo2 = calculateDamage(enemyStats, playerStats, state.enemy.level, playerLevel, 'combo', rng, playerGuarding, finalPlayerAction === 'berserk');
-      pHp = Math.max(0, pHp - combo2.damage + (bossFx.bonusFlatDamage > 0 ? bossFx.bonusFlatDamage : 0));
+      pHp = Math.max(0, pHp - combo2.damage - (bossFx.bonusFlatDamage > 0 ? bossFx.bonusFlatDamage : 0));
     }
   }
 
@@ -686,7 +686,7 @@ export const resolveRound = (
     };
     return {
       state: newState,
-      playerTurn: playerFirst ? firstTurn : firstTurn, // will fix below
+      playerTurn: playerFirst ? firstTurn : null,
       enemyTurn: playerFirst ? null : firstTurn,
     };
   }
@@ -734,7 +734,7 @@ export const resolveRound = (
     eHp = Math.max(0, eHp - secondResult.counterDamage);
     if (secondAction === 'combo' && !secondResult.dodged && pHp > 0) {
       const combo2 = calculateDamage(enemyStats, playerStats, state.enemy.level, playerLevel, 'combo', rng, playerGuarding, finalPlayerAction === 'berserk');
-      pHp = Math.max(0, pHp - combo2.damage + (bossFx.bonusFlatDamage > 0 ? bossFx.bonusFlatDamage : 0));
+      pHp = Math.max(0, pHp - combo2.damage - (bossFx.bonusFlatDamage > 0 ? bossFx.bonusFlatDamage : 0));
     }
   } else {
     // Player attacks enemy

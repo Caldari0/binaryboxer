@@ -1635,3 +1635,36 @@ body {
     opacity: 0.92;
   }
 }
+
+/* --- 24. Performance Safeguards ----------------------------- */
+/* On small/mobile surfaces and reduced-motion environments, disable
+   decorative continuous effects that can cause frame drops. */
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .bb-app::before,
+  .bb-crt::before,
+  .bb-binary-rain {
+    display: none !important;
+  }
+
+  .bb-log-line,
+  .bb-float,
+  .bb-screen-enter,
+  .bb-stat-pulse,
+  .bb-cursor,
+  .bb-companion-orb,
+  .bb-robot-eye,
+  .bb-boss-intro-overlay,
+  .bb-shake,
+  .bb-crit-impact,
+  .bb-levelup,
+  .bb-ko {
+    animation: none !important;
+  }
+
+  .bb-health-fill,
+  .bb-hp-fill,
+  .bb-xp-fill,
+  .bb-timer-fill {
+    transition: none !important;
+  }
+}

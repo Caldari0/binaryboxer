@@ -83,13 +83,16 @@ export const calculateStatsForLevel = (
   }
 
   // Apply allStatBonus (e.g. Python +2 to ALL growth stats per level)
+  // Skip the language's own primary/secondary stats to avoid double-stacking
   if (lang1.allStatBonus > 0) {
     for (const key of GROWTH_STAT_KEYS) {
+      if (key === lang1.primaryStat || key === lang1.secondaryStat) continue;
       stats[key] += lang1.allStatBonus * level;
     }
   }
   if (lang2.allStatBonus > 0) {
     for (const key of GROWTH_STAT_KEYS) {
+      if (key === lang2.primaryStat || key === lang2.secondaryStat) continue;
       stats[key] += lang2.allStatBonus * level;
     }
   }
@@ -156,7 +159,7 @@ export const getXpForFight = (
  * Formula: currentStatValue * 10
  */
 export const getTrainingCost = (currentStatValue: number): number => {
-  return currentStatValue * 10;
+  return Math.max(10, currentStatValue * 10);
 };
 
 /**

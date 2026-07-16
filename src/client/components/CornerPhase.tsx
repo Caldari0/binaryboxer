@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { LANGUAGE_ORDER, LANGUAGE_PROFILES, type LanguageId } from '../data/languages';
 import { TerminalMenu, type TerminalMenuOption } from './TerminalMenu';
 
@@ -88,6 +89,8 @@ const statVisualMax: Record<keyof CornerRobot['stats'], number> = {
 };
 
 export const CornerPhase = ({ robot, onAction }: CornerPhaseProps) => {
+  const [swapSlot, setSwapSlot] = useState<1 | 2>(2);
+
   const options: TerminalMenuOption<CornerAction>[] = [
     {
       id: 'repair',
@@ -165,13 +168,39 @@ export const CornerPhase = ({ robot, onAction }: CornerPhaseProps) => {
               </span>
             ))}
           </div>
-          <p className="m-0 mt-3 text-xs text-[rgb(0_255_65_/_60%)]">Swap target (replaces slot B):</p>
+          <p className="m-0 mt-3 text-xs text-[rgb(0_255_65_/_60%)]">Swap target:</p>
+          <div className="mt-1 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSwapSlot(1)}
+              className="border px-2 py-1 text-xs"
+              style={{
+                borderColor: swapSlot === 1 ? 'rgb(0 255 65)' : 'rgb(0 255 65 / 20%)',
+                background: swapSlot === 1 ? 'rgb(0 255 65 / 12%)' : 'rgb(0 0 0 / 20%)',
+                color: LANGUAGE_PROFILES[robot.languages[0]].color,
+              }}
+            >
+              A: {LANGUAGE_PROFILES[robot.languages[0]].name}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSwapSlot(2)}
+              className="border px-2 py-1 text-xs"
+              style={{
+                borderColor: swapSlot === 2 ? 'rgb(0 255 65)' : 'rgb(0 255 65 / 20%)',
+                background: swapSlot === 2 ? 'rgb(0 255 65 / 12%)' : 'rgb(0 0 0 / 20%)',
+                color: LANGUAGE_PROFILES[robot.languages[1]].color,
+              }}
+            >
+              B: {LANGUAGE_PROFILES[robot.languages[1]].name}
+            </button>
+          </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
             {LANGUAGE_ORDER.filter((languageId) => !robot.languages.includes(languageId)).map((languageId) => (
               <button
                 key={languageId}
                 type="button"
-                onClick={() => onAction('swapLanguage', languageId)}
+                onClick={() => onAction('swapLanguage', `${swapSlot}:${languageId}`)}
                 className="border border-[rgb(0_255_65_/_20%)] bg-[rgb(0_0_0_/_24%)] px-2 py-1 text-left text-xs"
                 style={{ color: LANGUAGE_PROFILES[languageId].color }}
               >

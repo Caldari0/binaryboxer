@@ -133,6 +133,7 @@ export const App = () => {
           }}
           turns={combatTurns}
           bossFight={game.fight.enemy.isBoss}
+          fightResult={game.fight.result}
           onFightComplete={() => {
             void game.completeFight();
           }}
@@ -188,8 +189,15 @@ export const App = () => {
                   }
                   break;
                 case 'swapLanguage':
-                  if (payload && isLanguageId(payload)) {
-                    void game.swapLanguage(2, payload);
+                  if (payload) {
+                    const colonIdx = payload.indexOf(':');
+                    if (colonIdx !== -1) {
+                      const slot = payload.substring(0, colonIdx) === '1' ? 1 : 2;
+                      const lang = payload.substring(colonIdx + 1);
+                      if (isLanguageId(lang)) {
+                        void game.swapLanguage(slot, lang);
+                      }
+                    }
                   }
                   break;
                 case 'fightNext':

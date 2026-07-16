@@ -27,6 +27,7 @@ import {
 } from '../engine/stats';
 import { calculateTotalLegacy } from '../engine/inheritance';
 import { LANGUAGE_IDS } from '../data/languages';
+import { checkProfanity } from '../data/profanity';
 import {
   loadPlayer,
   loadFight,
@@ -142,6 +143,15 @@ game.post('/create', async (c) => {
     if (robotName.length < 1) {
       return c.json<ApiError>(
         { status: 'error', message: 'Robot name contains no valid characters' },
+        400,
+      );
+    }
+
+    // Check for profanity
+    const blocked = checkProfanity(robotName);
+    if (blocked) {
+      return c.json<ApiError>(
+        { status: 'error', message: 'Robot name contains inappropriate language' },
         400,
       );
     }

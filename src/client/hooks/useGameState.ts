@@ -77,6 +77,10 @@ const initialState: GameState = {
   error: null,
 };
 
+// Community events are not rendered in the current UI. Keeping realtime updates
+// disabled avoids whole-app rerenders on every incoming event.
+const ENABLE_REALTIME_COMMUNITY = false;
+
 const API_TIMEOUT_MS = 15000;
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -135,7 +139,45 @@ export const useGameState = () => {
   }, []);
 
   // --- Init ---
-  const performInit = useCallback(async () => {
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const data = await apiFetch<InitResponse>('/init');
+        safeSetState((prev) => ({
+          ...prev,
+          postId: data.postId,
+          username: data.username,
+          player: data.player,
+          fight: data.fight ?? null,
+          screen: data.hasPlayer
+            ? data.player?.state === 'fighting' && data.fight
+              ? 'fighting'
+              : data.player?.state === 'retired' || data.player?.state === 'creating'
+                ? 'creating'
+                : 'corner'
+            : 'creating',
+          loading: false,
+        }));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to initialize';
+        safeSetState((prev) => ({
+          ...prev,
+          error: message,
+          loading: false,
+          screen: 'loading',
+        }));
+      }
+    };
+    void init();
+  }, [safeSetState]);
+
+  const retryInit = useCallback(async () => {
+    safeSetState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+      screen: 'loading',
+    }));
     try {
       const data = await apiFetch<InitResponse>('/init');
       safeSetState((prev) => ({
@@ -164,23 +206,9 @@ export const useGameState = () => {
     }
   }, [safeSetState]);
 
-  useEffect(() => {
-    void performInit();
-  }, [performInit]);
-
-  const retryInit = useCallback(async () => {
-    safeSetState((prev) => ({
-      ...prev,
-      loading: true,
-      error: null,
-      screen: 'loading',
-    }));
-    await performInit();
-  }, [performInit, safeSetState]);
-
   // --- Realtime community events ---
   useEffect(() => {
-    if (!state.postId) return;
+    if (!ENABLE_REALTIME_COMMUNITY || !state.postId) return;
     const channel = `${state.postId}_events`;
     connectRealtime<CommunityEvent>({
       channel,
@@ -326,7 +354,7 @@ export const useGameState = () => {
             player: {
               ...prev.player,
               stats: { ...prev.player.stats, hp: data.hpAfter },
-              fullRepairCooldown: full ? 3 : prev.player.fullRepairCooldown,
+              fullRepairCooldown: data.fullRepairCooldown,
             },
             loading: false,
           };
@@ -418,7 +446,7 @@ export const useGameState = () => {
   const loadDynasty = useCallback(async () => {
     safeSetState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const data = await apiFetch<DynastyTreeResponse>('/dynasty/tree');
+      const data = await apiFetch<DynastyTreeResponse>('/dynasty');
       safeSetState((prev) => ({
         ...prev,
         dynasty: data.dynasty,

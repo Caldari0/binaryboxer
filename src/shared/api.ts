@@ -76,7 +76,7 @@ export type FightTurnRequest = {
 export type FightTurnResponse = {
   type: 'fight_turn';
   fight: FightState;
-  playerTurn: import('./types').FightTurn;
+  playerTurn: import('./types').FightTurn | null;
   enemyTurn: import('./types').FightTurn | null;
 };
 
@@ -99,6 +99,7 @@ export type RepairResponse = {
   hpAfter: number;
   maxHp: number;
   fullRepair: boolean;
+  fullRepairCooldown: number;
 };
 
 export type TrainRequest = {

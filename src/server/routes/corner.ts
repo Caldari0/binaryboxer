@@ -92,6 +92,7 @@ corner.post('/repair', async (c) => {
       hpAfter,
       maxHp,
       fullRepair: false,
+      fullRepairCooldown: player.fullRepairCooldown,
     });
   } catch (error) {
     log.error('/api/corner/repair', 'Failed to repair robot', error, postId);
@@ -165,6 +166,7 @@ corner.post('/full-repair', async (c) => {
       hpAfter: maxHp,
       maxHp,
       fullRepair: true,
+      fullRepairCooldown: player.fullRepairCooldown,
     });
   } catch (error) {
     log.error('/api/corner/full-repair', 'Failed to full-repair robot', error, postId);

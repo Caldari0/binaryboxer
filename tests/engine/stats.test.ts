@@ -37,12 +37,11 @@ describe('calculateStatsForLevel', () => {
     expect(stats.power).toBe(10);         // unchanged
   });
 
-  it('python gives +2 to all growth stats per level', () => {
+  it('python gives +2 to all growth stats per level (excluding its own primary)', () => {
     const stats = calculateStatsForLevel('python', 'rust', 1, {});
-    // Python: primary power +2, secondary null, allStatBonus +2 to ALL growth stats
+    // Python: primary power +2, secondary null, allStatBonus +2 (skips own primary)
     // Rust: primary defence +3, secondary stability +1
-    // Every growth stat gets +2 from python allStat bonus
-    expect(stats.power).toBe(10 + 2 + 2);    // base 10 + python primary 2 + python allStat 2
+    expect(stats.power).toBe(10 + 2);        // base 10 + python primary 2 (allStat skips power)
     expect(stats.defence).toBe(5 + 3 + 2);   // base 5 + rust primary 3 + python allStat 2
     expect(stats.stability).toBe(0 + 1 + 2); // base 0 + rust secondary 1 + python allStat 2
     expect(stats.creativity).toBe(0 + 2);    // base 0 + python allStat 2
@@ -96,10 +95,10 @@ describe('getXpForFight', () => {
 });
 
 describe('getTrainingCost', () => {
-  it('cost is currentValue * 10', () => {
+  it('cost is currentValue * 10 with a minimum of 10', () => {
     expect(getTrainingCost(1)).toBe(10);
     expect(getTrainingCost(10)).toBe(100);
-    expect(getTrainingCost(0)).toBe(0);
+    expect(getTrainingCost(0)).toBe(10);
   });
 });
 

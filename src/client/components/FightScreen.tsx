@@ -26,6 +26,8 @@ type FightScreenProps = {
   enemy: FighterView;
   turns: CombatTurn[];
   bossFight: boolean;
+  /** Server-authoritative fight result */
+  fightResult: 'win' | 'loss' | 'pending';
   onFightComplete: (result: 'win' | 'loss') => void;
 };
 
@@ -51,7 +53,7 @@ _     ___  ____ ____
 |_____\\___/|____/____/
 `;
 
-export const FightScreen = ({ player, enemy, turns, bossFight, onFightComplete }: FightScreenProps) => {
+export const FightScreen = ({ player, enemy, turns, bossFight, fightResult, onFightComplete }: FightScreenProps) => {
   const shouldPlayBossIntro = bossFight && turns.length > 0;
   const [introActive, setIntroActive] = useState(shouldPlayBossIntro);
   const [revealedTurns, setRevealedTurns] = useState(0);
@@ -66,15 +68,11 @@ export const FightScreen = ({ player, enemy, turns, bossFight, onFightComplete }
   const playerHp = latestTurn ? latestTurn.playerHp : player.maxHp;
   const enemyHp = latestTurn ? latestTurn.enemyHp : enemy.maxHp;
   const isComplete = revealedTurns >= turns.length;
-  const result: 'win' | 'loss' | null = isComplete && turns.length > 0
-    ? enemyHp <= 0
-      ? 'win'
-      : playerHp <= 0
-        ? 'loss'
-        : enemyHp < playerHp
-          ? 'win'
-          : 'loss'
-    : null;
+  // Use the server-authoritative result once all turns have been revealed
+  const result: 'win' | 'loss' | null =
+    isComplete && turns.length > 0 && fightResult !== 'pending'
+      ? fightResult
+      : null;
 
   useEffect(() => {
     if (!introActive) return;

@@ -410,6 +410,10 @@ combat.post('/complete', async (c) => {
     let leveledUp = false;
     let newLevel = player.level;
 
+    // Track current HP across multiple level-ups to preserve correct ratio
+    let currentHp = fight.currentHp;
+    let currentMaxHp = fight.playerStatsSnapshot.maxHp;
+
     while (player.xp >= player.xpToNext) {
       player.xp -= player.xpToNext;
       player.level += 1;
@@ -418,6 +422,7 @@ combat.post('/complete', async (c) => {
       leveledUp = true;
 
       // Recalculate stats on level up
+      const hpRatio = currentHp / currentMaxHp;
       player.stats = calculateStatsForLevel(
         player.language1,
         player.language2,
@@ -425,12 +430,15 @@ combat.post('/complete', async (c) => {
         player.legacyStats,
       );
 
-      // Preserve current HP ratio on level up
-      const hpRatio = fight.currentHp / fight.playerStatsSnapshot.maxHp;
+      // Preserve HP ratio from previous iteration, not the original fight snapshot
       player.stats.hp = Math.max(
         1,
         Math.floor(player.stats.maxHp * hpRatio),
       );
+
+      // Update tracking for next iteration
+      currentHp = player.stats.hp;
+      currentMaxHp = player.stats.maxHp;
     }
 
     // Check for companion unlocks
@@ -457,6 +465,11 @@ combat.post('/complete', async (c) => {
     // Check for forced retirement: KO'd (HP 0) at 30+ total fights
     const isKo = !won && player.stats.hp <= 0;
     const forcedRetirement = isKo && player.totalFights >= 30;
+
+    // Capture values before mutation for broadcast events
+    const retiredRobotName = player.robotName;
+    const retiredTotalFights = player.totalFights;
+    const retiredLevel = newLevel;
 
     if (forcedRetirement) {
       // Trigger forced retirement flow
@@ -545,8 +558,8 @@ combat.post('/complete', async (c) => {
         broadcastEvent(postId, {
           type: 'dynasty_start',
           username,
-          robotName: player.robotName || 'Unknown',
-          detail: `KO'd at Level ${newLevel} after ${player.totalFights || 30}+ fights — forced retirement, Generation ${player.generation} begins`,
+          robotName: retiredRobotName || 'Unknown',
+          detail: `KO'd at Level ${retiredLevel} after ${retiredTotalFights} fights — forced retirement, Generation ${player.generation} begins`,
           timestamp: Date.now(),
         }),
       );
