@@ -32,6 +32,7 @@ short sturdy legs, slim arms, oversized boxing mitts.
 | Chest | **The Heart-Gauge** — brass bezel, glass dome, ivory dial with ink tick marks, garnet needle |
 | Mitts | Oversized deep-garnet (gloves are canonically garnet per design tokens) |
 | Feet | Copper boots with brass toe-caps |
+| Spout | Side-mounted stubby spout with brass rim (origin-story canon: the steam-whistle punch tell; the front stays face + gauge) |
 
 **Identity system ("not one entity"):** the character changes with events; each dynasty
 generation is a genuinely new robot (new face, new build). Recognition is carried by the
@@ -59,6 +60,11 @@ hero's enamel swaps).
 Mechanics mapping: ranks give faces/voices to the redesign's **archetypes-with-variants**;
 class names are flavour and may appear on fight bills — scouting evidence stays behavioural
 (redesign decision #4). Gate 0 needs ~3 ranks + 1 phased boss (chief); the clan grows later.
+
+Full story canon: `docs/binary-boxing/story/the-pot-who-kept-nothing.md` (origin story,
+draft 2). Wake mechanic + corner-crew unlock system + fireside-cups meta-progress:
+`docs/binary-boxing/04-story-canon.md`. The **Champion** (never unmasked) is the league's
+recurring rival; every defeated goblin wakes permanently and joins the corner.
 
 ## 4. Art direction — LOCKED: T4 "lacquered storybook"
 
