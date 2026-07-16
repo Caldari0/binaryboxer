@@ -64,11 +64,6 @@ export type FightStartResponse = {
   fight: FightState;
 };
 
-export type FightResolveResponse = {
-  type: 'fight_resolved';
-  fight: FightState;
-};
-
 export type FightTurnRequest = {
   action: import('./types').CombatAction;
 };
