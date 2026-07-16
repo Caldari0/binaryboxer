@@ -1,86 +1,115 @@
-# 04 — Story Canon & the Corner-Crew Wake System
+# 04 — Story Canon & the Kettleworks Gym (wake system v2)
 
-_2026-07-16 · tier: **draft** (owner-reviewable) · Story text: `story/the-pot-who-kept-nothing.md` ·
-Mechanics authority: `docs/plans/binaryboxer-redesign-decisions.md` · Art: spec §2–4 + `design-tokens.md`_
+_2026-07-16 · tier: **draft** (owner-reviewable) · v2 incorporates the owner's gym-manager pivot ·
+Story text: `story/the-pot-who-kept-nothing.md` · Mechanics authority:
+`docs/plans/binaryboxer-redesign-decisions.md` — **flagged for revision, see §8** · Art: spec §2–4_
 
 ## 1. The premise in one paragraph
 
 A rare energy (**Gobblestone**) became sentient the moment it was seeded through a hundred
-thinking machine-hearts. Having spent a thousand years listening to miners' goblin stories, it
-decided that is what it — and every machine carrying a shard — must be. The corrupted helpers
-became an **illegible goblin clan** (they talk, fight, and look different by class). The hero,
-a teapot-boiler too small to keep a shard (nothing settles where nothing stays), fights them
-under **Goblin Law** — _no goblin may refuse a fair scrap; the loser pays one forfeit_ — and
-his forfeit is always the same: **take off your mask.** A clean win cracks the mask, the true
-name returns, and the wake sticks.
+thinking machine-hearts, and — having spent a thousand years listening to miners' goblin
+stories — decided that it, and every machine carrying a shard, must be **goblins**. The
+corrupted helpers were the valley's working heroes; what's left of them are **Remnants**.
+The dreaming stone invented its own tournament — a hybrid sport, boxing fused with football,
+run gym-against-gym — and the goblin clan fields its Remnants in it, five to a gym, coached
+by ranked goblins. **You are not the boxer. You are the coach.** You run the Kettleworks gym
+(Granny Fettle's bench, the fire, the storybook of rules), and every fighter you free, buy,
+train, or defeat is somebody's hero coming home.
 
-## 2. The loop: every boss fight is a rescue
+## 2. The player fantasy and the loop
+
+**You run a gym of at most five Remnants.** You hire, train, buy, and sell to make the gym
+great. The gym earns **prestige two ways: victory or entertainment** — a losing bout that
+thrills the crowd still feeds the gym's name.
 
 ```
-scout the goblin → build the gameplan → win by goblin law
-        → forfeit: mask off → ally WAKES (permanent)
-        → one more cup by the fire (meta-progress)
-        → ally joins the corner → one capability unlocks
-        → their true form teaches you what fighting them taught you
+scout the rival gym → set each bout's gameplan → FIXTURE: a card of bouts, five max
+   → prestige from wins AND from entertainment
+   → free Remnants two ways:
+        BUY a fighter from a goblin gym  = ransom-rescue (they wake at your hearth)
+        DEFEAT a gym leader's full card  = the LEADER wakes and joins as STAFF
+   → staff unlock one gym capability each → climb toward the mountain
 ```
 
-The unlock rule that makes it feel fair, not arbitrary: **you unlock the thing the fight
-forced you to learn.** The Ranger out-scouts you; beat him and scouting deepens. The Guardian
-walls you out; beat him and the defensive lever arrives. The fight is the tutorial; the ally
-is the diploma.
+The unlock rule that keeps it fair: **you unlock what the fight forced you to learn.** The
+fight engine already built (gameplans, tells, corner calls, reasons-as-UI) is unchanged — it
+is the atomic unit; a fixture simply plays a card of them.
 
-## 3. Rank ladder → true form → corner unlock (all names placeholder)
+**Goblin Law binds all of it** (_no goblin may refuse a fair scrap; the loser pays one
+forfeit, true and paid in full_). Your standing forfeit never changes: *take off your mask.*
 
-| # | Goblin rank | Fights like (archetype) | True form (was built to…) | Corner unlock when woken |
-|---|---|---|---|---|
-| 1 | Goblin | bruiser | **Barrow**, hauler (carry the harvest) | **The corner itself**: corner-calls become available (bout 1 is fought alone, exactly as in the book) |
-| 2 | Goblin Ranger | out-fighter, elusive | **Waymark**, surveyor (walked every path) | Scouting +1 behavioural tell per opponent |
-| 3 | Goblin Guardian | counter, walls-up | **Bulwark**, dam-keeper (held the river) | Defensive gameplan lever: "Hold the Door" |
-| 4 | **Goblin Chief** (phased boss) | marshals the above | **Foreman**, crane (raised the roofs) | Venue 2 opens; fight bills preview the next rank |
-| 5 | Goblin Knight | pressure, charges | **Coulter**, plough (broke the ground) | Pressure gameplan lever: "Break the Line" |
-| 6 | Goblin Paladin | endures, punishes late | **Wellward**, well-keeper (drew the water) | Repairs improve between bouts (caps unchanged — repairs still never buy wins) |
-| 7 | Goblin Shaman | tricky, shifts policy | **Vane**, weather-teller (read the sky) | Foresight: reason-lines hint the opponent's *next* likely shift |
-| 8 | Goblin Lord | deep-hall royalty | **Undercroft**, mine-lift (lord of the deep halls, literally) | Dynasty depth: heirloom carries one extra memory (balance TBD) |
-| 9 | **Goblin Champion** (final) | unknown — never unmasked | **unknown** (book 2 mystery) | The ending. He faces the whole woken family at ringside |
+## 3. The ladder: goblin gym leaders → your staff (all names placeholder)
 
-Gate 0 slice = rows 1–4 (three archetypes + one phased boss, per redesign scope). Rows 5–9
-are campaign content for later gates. Unlock wiring is finalized in the implementation plan.
+Rival gyms are run by ranked goblins — gym leaders in the classic ladder sense. Their
+fighters are unique goblin-dressed Remnants (buyable = rescuable). Beat a leader's full card
+and the leader wakes, joins the Kettleworks, and staffs one gym function:
 
-## 4. The fireside cups (diegetic meta-progress)
+| # | Gym leader | True form (was built to…) | Staff role when woken → unlock |
+|---|---|---|---|
+| 1 | Goblin (Barrow) | hauler (carried the harvest) | **The Corner** — stool, bucket, towel; corner-calls in bouts (founding staff, from the book) |
+| 2 | Goblin Ranger | **Waymark**, surveyor (walked every path) | **Scout** — recommends who to buy; +1 behavioural tell on opponents |
+| 3 | Goblin Guardian | **Bulwark**, dam-keeper (held the river) | **Defensive coach** — "Hold the Door" gameplan lever + guard training |
+| 4 | **Goblin Chief** (boss) | **Foreman**, crane (raised the roofs) | **Fixture-master** — venue 2 opens; fight bills preview upcoming cards |
+| 5 | Goblin Knight | **Coulter**, plough (broke the ground) | **Trainer** — fighters climb from current ability toward potential faster |
+| 6 | Goblin Paladin | **Wellward**, well-keeper (drew the water) | **Physio** — better recovery between fixtures (caps hold: repairs never buy wins) |
+| 7 | Goblin Shaman | **Vane**, weather-teller (read the sky) | **Analyst** — foresight on opponents' policy shifts; crowd/entertainment read |
+| 8 | Goblin Lord | **Undercroft**, mine-lift (lord of the deep halls) | **Facilities** — gym upgrade tier (economy/balance TBD) |
+| 9 | **Goblin Champion** (final) | **unknown** — has never taken off his mask | The ending. He faces your whole woken family at ringside |
 
-The gym hub's hearth displays **one teacup per woken ally** — the book's closing image
-("two cups of tea by the Kettleworks fire") made into the game's progress UI. No progress
-bar, no badge wall: you count cups. Book chapters and game chapters end on the same image,
-which means every gameplay milestone is automatically a picture-book beat and vice versa.
+Leaders cannot be bought — only fought. Fighters can be either. Gate 0 slice = rows 1–4.
 
-Corner-crew presence is also diegetic: woken allies appear ringside (stool, bucket, towel —
-Barrow's line), and their **voices replace the generic corner**: each rescue changes what
-your corner says, because each ally talks different — the woken inversion of "every class
-talks different."
+## 4. Fighters: Remnants, ability, and the market
 
-## 5. Production symmetry (why this is cheap)
+- Every hireable/buyable fighter is a **Remnant of a hero** — a named helper machine with a
+  past job, a true form, and a goblin dressing while enslaved to a rival gym.
+- Growth model: **current ability → potential** (trainers accelerate the climb; scouting
+  estimates potential before you buy). Pekoe is the founding fighter: low ability,
+  bottomless potential, immune to shards — nothing settles where nothing stays.
+- Selling/releasing a woken Remnant never re-goblins them (the wake sticks — canon). The
+  market moves contracts, not souls.
 
-- Goblin rank = **base goblin chassis + class gear kit** (mask, armour, class props).
-- Woken ally = **same chassis − goblin kit + small corner kit** (true-form paint, one signature
-  tool, teacup).
-- Every fight therefore yields two characters from one model — the enemy and the ally — the
-  same modular economics as the hero's enamel/part swaps. The wake moment itself is a
-  material/part swap: exactly what the pipeline already does.
+## 5. The fireside cups (diegetic meta-progress)
 
-## 6. Canon reconciliations locked this pass
+The gym hearth shows **one teacup per woken friend** — staff and freed fighters alike — the
+book's closing image as the game's only progress wall. Roster board, cups, and the storybook
+of Goblin Law are the gym hub's three fixtures. Every woken staff member changes what the
+corner *says* (each true form talks different — the woken inversion of "every class talks
+different").
 
-1. **Spout added to the hero model** (side-mounted; front stays face + gauge). Demanded by the
-   story ("steam curling from his spout"), and it completes the teapot read.
-2. **Bell = brass with a copper tongue** — story now matches the built model verbatim.
-3. **The Champion = the league's recurring rival** (the "rival transmissions" of the visual
-   bible are the one goblin who never unmasks).
-4. **The storybook is the rulebook**: _Goblin Law, and Other True Stories_ — fight bills, the
-   rank ladder, forfeits, and Granny Fettle's ownership of the book are all one object.
+## 6. Production symmetry (why this stays cheap)
 
-## 7. Open questions (for the owner, none blocking)
+- Goblin fighter = base Remnant chassis + goblin kit; woken = same chassis − goblin kit +
+  livery. The wake moment is literally a material/part swap — what the pipeline already does.
+- Gym leaders = one ranked chassis + class regalia kit each; as staff, regalia off + one
+  signature tool (scout's glass, trainer's pads, physio's wrench).
+- A fixture needs at most 10 characters on screen across five bouts — all permutations of
+  kits over shared chassis. Roster-of-5 multiplies content without multiplying models.
 
-- Does **losing** a bout have a story meaning under Goblin Law? (Proposal: the goblin's
-  forfeit claim is one lamp — integrity token loss = "they take a light." Mechanically
-  identical to current integrity rules, narratively perfect.)
-- Names: all placeholders — rename at will; the doc structure survives renaming.
-- Lord unlock (heirloom memory) needs a balance pass at Gate 2+.
+## 7. Canon reconciliations (v2)
+
+1. **The player is the gym, not the boxer.** In the book, Granny Fettle already coaches
+   (Spread 11: the gloves, the training by the fire) and Barrow founds the corner (Spread
+   14). The origin story is the **founding legend of the Kettleworks gym**: Pekoe is your
+   first fighter, Barrow your first staff. Story text needs no changes.
+2. **Buying = ransom-rescue** — the fable's mercy made mechanical: some friends you win back,
+   some you pay home. Both count a cup.
+3. The Champion remains the recurring rival; the spout, bell-with-copper-tongue, Heart-Gauge,
+   and two-layer goblin tells are unchanged from v1.
+4. The hybrid sport needs an in-world name (working placeholder: **"Fives"**) — owner names it.
+
+## 8. Flagged: redesign-decisions revision required
+
+`docs/plans/binaryboxer-redesign-decisions.md` assumes a single-fighter Manager Mode. The
+pivot adds: roster economy (hire/buy/sell), prestige (victory + entertainment scoring),
+fixture cards, ability/potential growth, staff system; and re-homes dynasty/integrity
+(proposal: integrity = the gym's lamps; a lost fixture = "they take a light"). **A dedicated
+decisions-revision session is required before Gate-0 progression code is built.** The fight
+engine, art pipeline, and story are unaffected and may proceed.
+
+## 9. Open questions (owner, non-blocking for art)
+
+- What earns **entertainment** prestige, concretely? (risky gameplans, comebacks, KOs,
+  crowd momentum — needs a scoring rule)
+- Does the dynasty/generation mechanic survive per-fighter (retiring Remnants), per-gym, or
+  retire entirely?
+- Economy: one currency (scrap) or two (scrap + prestige)? Transfer pricing tuning.
