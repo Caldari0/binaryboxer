@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Boxer — Manager Mode Prototype</title>
+<style>
+/* ============================================================
+   BINARY BOXER — storybook-industrial design tokens
+   Authority: docs/binary-boxing/design-tokens.md
+   ============================================================ */
+:root{
+  /* Workshop darks (warm, never pure black) */
+  --bb-bg:        #1c140e;
+  --bb-bg-deep:   #140e09;
+  --bb-surface:   #2a1e14;
+  --bb-surface-2: #342619;
+  --bb-surface-3: #3f2f1f;
+  /* Warm metals */
+  --bb-brass:     #c9963f;
+  --bb-brass-hi:  #ecc06a;
+  --bb-brass-lo:  #8a6425;
+  --bb-copper:    #b87352;
+  --bb-iron:      #57493c;
+  /* Jewel enamels */
+  --bb-teal:      #2b8c82;
+  --bb-teal-hi:   #46b3a7;
+  --bb-garnet:    #b04353;
+  --bb-garnet-hi: #d4687a;
+  --bb-royal:     #3d6fa8;
+  --bb-royal-hi:  #6494cc;
+  --bb-moss:      #6d8a3f;
+  --bb-moss-hi:   #8fb05e;
+  --bb-amber:     #ffb84d;
+  /* Parchment & ink */
+  --bb-parchment: #f2e4c8;
+  --bb-parch-dim: #d9c6a3;
+  --bb-ink:       #2b2118;
+  --bb-ink-soft:  #4a3a2a;
+  /* Text on dark */
+  --bb-text:      #f0e2c4;
+  --bb-text-dim:  #bda887;
+  --bb-text-faint:#8a785f;
+  /* Semantics */
+  --bb-win:       var(--bb-moss-hi);
+  --bb-loss:      var(--bb-garnet-hi);
+  --bb-danger:    #d24b45;
+  --bb-focus:     #ffd98a;
+  /* Type scale (fluid) */
+  --fs-hero:  clamp(1.7rem, 4.5vw, 2.6rem);
+  --fs-title: clamp(1.25rem, 3vw, 1.7rem);
+  --fs-sub:   clamp(1.02rem, 2.2vw, 1.2rem);
+  --fs-body:  clamp(.92rem, 1.8vw, 1rem);
+  --fs-small: clamp(.8rem, 1.5vw, .86rem);
+  --fs-tiny:  .72rem;
+  --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+  --font-ui: 'Segoe UI', -apple-system, 'Helvetica Neue', system-ui, sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', 'JetBrains Mono', monospace;
+  /* Geometry */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  /* Motion — weight & anticipation */
+  --ease-spring: cubic-bezier(.28,1.4,.42,1);
+  --ease-heavy:  cubic-bezier(.2,.8,.2,1);
+  --t-fast: 140ms; --t-med: 260ms; --t-slow: 420ms;
+  /* Elevation & bevels */
+  --bevel-out: inset 0 1px 0 rgba(255,235,190,.16), inset 0 -2px 0 rgba(0,0,0,.35);
+  --bevel-in:  inset 0 2px 6px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,235,190,.08);
+  --shadow-1: 0 2px 6px rgba(0,0,0,.4);
+  --shadow-2: 0 6px 18px rgba(0,0,0,.5);
+  --shadow-3: 0 14px 40px rgba(0,0,0,.55);
+  /* Language enamels (identity hues re-tuned to enamel) */
+  --lang-rust: #c67549; --lang-javascript:#d9b13b; --lang-python:#4879a8;
+  --lang-cpp:#7a6db3; --lang-css:#c25f8a; --lang-go:#4aa3ad;
+  --lang-typescript:#5a7fc0; --lang-c:#9a9484; --lang-haskell:#8a68a8; --lang-lua:#5f6fb0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 70% -10%, rgba(201,150,63,.08), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(43,140,130,.06), transparent 55%),
+    var(--bb-bg);
+  color:var(--bb-text);
+  font-family:var(--font-ui);
+  font-size:var(--fs-body);
+  line-height:1.5;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+/* Rivet-plate texture backdrop */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.05;
+  background-image:radial-gradient(circle at 2px 2px, #000 1px, transparent 1.6px);
+  background-size:26px 26px;}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+:focus-visible{outline:3px solid var(--bb-focus);outline-offset:2px;border-radius:4px}
+h1,h2,h3,.display{font-family:var(--font-display);letter-spacing:.01em}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app{max-width:1180px;margin:0 auto;padding:0 var(--space-4) 120px;min-height:100vh}
+.masthead{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-3) 0 var(--space-2);
+  border-bottom:2px solid var(--bb-brass-lo);
+  position:relative;
+}
+.masthead::after{content:'';position:absolute;left:0;right:0;bottom:-5px;height:2px;
+  background:linear-gradient(90deg, transparent, var(--bb-brass-lo), transparent);opacity:.5}
+.marque{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.marque .gear{width:34px;height:34px;flex:none}
+.marque h1{font-size:var(--fs-sub);color:var(--bb-brass-hi);white-space:nowrap}
+.marque small{display:block;font-family:var(--font-ui);font-size:var(--fs-tiny);
+  color:var(--bb-text-faint);letter-spacing:.14em;text-transform:uppercase}
+.masthead .spacer{flex:1}
+.coin-purse{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);
+  font-size:var(--fs-small);color:var(--bb-amber);
+  background:var(--bb-surface);border:1px solid var(--bb-brass-lo);border-radius:var(--r-pill);
+  padding:4px 12px;box-shadow:var(--bevel-out)}
+/* Primary nav — brass tab rail */
+.tab-rail{display:flex;gap:2px;margin-top:var(--space-3);overflow-x:auto;scrollbar-width:none;
+  padding-bottom:2px}
+.tab-rail::-webkit-scrollbar{display:none}
+.tab{
+  flex:none;display:flex;align-items:center;gap:7px;
+  padding:9px 14px;border-radius:var(--r-md) var(--r-md) 0 0;
+  background:linear-gradient(180deg, var(--bb-surface-2), var(--bb-surface));
+  border:1px solid var(--bb-brass-lo);border-bottom:none;
+  color:var(--bb-text-dim);font-size:var(--fs-small);font-weight:600;
+  box-shadow:var(--bevel-out);
+  transition:transform var(--t-fast) var(--ease-heavy), color var(--t-fast);
+  position:relative;top:2px;
+}
+.tab:hover{color:var(--bb-text);transform:translateY(-2px)}
+.tab[aria-selected="true"]{
+  background:linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  color:var(--bb-brass-hi);top:0;padding-bottom:11px;
+  border-color:var(--bb-brass);
+}
+.tab .ico{width:15px;height:15px;flex:none}
+.tab:disabled{opacity:.42;cursor:not-allowed;transform:none}
+main{padding-top:var(--space-5)}
+.screen{animation:screenIn var(--t-slow) var(--ease-heavy) both}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ============================================================
+   CORE COMPONENTS
+   ============================================================ */
+/* Plate card — riveted panel */
+.plate{
+  background:linear-gradient(180deg, var(--bb-surface-2), var(--bb-surface));
+  border:1px solid var(--bb-brass-lo);
+  border-radius:var(--r-lg);
+  box-shadow:var(--bevel-out), var(--shadow-1);
+  padding:var(--space-5);
+  position:relative;
+}
+.plate.rivets::before,.plate.rivets::after{
+  content:'';position:absolute;width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, var(--bb-brass-hi), var(--bb-brass-lo) 70%);
+  box-shadow:0 1px 2px rgba(0,0,0,.6);
+}
+.plate.rivets::before{top:10px;left:10px}
+.plate.rivets::after{top:10px;right:10px}
+.plate-title{font-size:var(--fs-title);color:var(--bb-brass-hi);margin-bottom:var(--space-2)}
+.plate-kicker{font-size:var(--fs-tiny);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--bb-text-faint);margin-bottom:var(--space-1);font-family:var(--font-ui)}
+/* Parchment inset — for prose/scout notes */
+.parchment{
+  background:linear-gradient(180deg, var(--bb-parchment), var(--bb-parch-dim));
+  color:var(--bb-ink);border-radius:var(--r-md);
+  padding:var(--space-4) var(--space-5);
+  box-shadow:var(--bevel-in), 0 1px 0 rgba(255,235,190,.15);
+  font-size:var(--fs-body);
+}
+.parchment .quill{font-family:var(--font-display);font-style:italic}
+/* Brass buttons — heavy, tactile */
+.btn{
+  --btn-bg1:var(--bb-brass-hi); --btn-bg2:var(--bb-brass); --btn-edge:var(--bb-brass-lo);
+  --btn-fg:var(--bb-ink);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-weight:700;font-size:var(--fs-small);letter-spacing:.03em;
+  color:var(--btn-fg);
+  background:linear-gradient(180deg, var(--btn-bg1), var(--btn-bg2));
+  border:1px solid var(--btn-edge);
+  border-radius:var(--r-md);
+  padding:11px 20px;
+  box-shadow:var(--bevel-out), 0 3px 0 var(--btn-edge), var(--shadow-1);
+  transition:transform var(--t-fast) var(--ease-heavy), box-shadow var(--t-fast) var(--ease-heavy), filter var(--t-fast);
+  text-transform:uppercase;
+  min-height:44px;
+}
+.btn:hover{filter:brightness(1.07);transform:translateY(-1px);
+  box-shadow:var(--bevel-out), 0 4px 0 var(--btn-edge), var(--shadow-2)}
+.btn:active{transform:translateY(2px);box-shadow:var(--bevel-out), 0 1px 0 var(--btn-edge)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:grayscale(.4)}
+.btn.teal{--btn-bg1:var(--bb-teal-hi);--btn-bg2:var(--bb-teal);--btn-edge:#175650;--btn-fg:#08211e}
+.btn.garnet{--btn-bg1:var(--bb-garnet-hi);--btn-bg2:var(--bb-garnet);--btn-edge:#6e2531;--btn-fg:#fff2ee}
+.btn.ghost{--btn-bg1:var(--bb-surface-3);--btn-bg2:var(--bb-surface-2);--btn-edge:var(--bb-iron);
+  --btn-fg:var(--bb-text);text-transform:none;font-weight:600}
+.btn.big{font-size:var(--fs-sub);padding:15px 30px;border-radius:var(--r-lg)}
+.btn.small{padding:7px 12px;min-height:36px;font-size:var(--fs-tiny)}
+/* Enamel badge */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:var(--fs-tiny);font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 11px;border-radius:var(--r-pill);
+  background:var(--badge-bg, var(--bb-teal));color:var(--badge-fg, #eafffb);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 2px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.4);
+  border:1px solid rgba(0,0,0,.35);
+}
+.badge.garnet{--badge-bg:var(--bb-garnet);--badge-fg:#ffeef1}
+.badge.royal{--badge-bg:var(--bb-royal);--badge-fg:#eaf3ff}
+.badge.moss{--badge-bg:var(--bb-moss);--badge-fg:#f4ffe8}
+.badge.brass{--badge-bg:linear-gradient(180deg,var(--bb-brass-hi),var(--bb-brass));--badge-fg:var(--bb-ink)}
+.badge.iron{--badge-bg:var(--bb-iron);--badge-fg:var(--bb-text)}
+/* Meters — enamel channel w/ brass frame */
+.meter{--meter-fill:var(--bb-teal-hi);
+  position:relative;height:18px;border-radius:var(--r-pill);
+  background:var(--bb-bg-deep);box-shadow:var(--bevel-in);
+  border:1px solid var(--bb-brass-lo);overflow:hidden}
+.meter>i{position:absolute;inset:2px auto 2px 2px;width:calc(var(--val,50)*1% - 4px);
+  border-radius:var(--r-pill);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--meter-fill) 80%, white 20%), var(--meter-fill));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+  transition:width var(--t-slow) var(--ease-heavy), background var(--t-med)}
+.meter.warn>i{--meter-fill:var(--bb-amber)}
+.meter.crit>i{--meter-fill:var(--bb-danger)}
+.meter-row{display:flex;align-items:center;gap:10px;margin:6px 0}
+.meter-row .lbl{width:86px;flex:none;font-size:var(--fs-tiny);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--bb-text-dim)}
+.meter-row .num{width:52px;flex:none;text-align:right;font-family:var(--font-mono);font-size:var(--fs-small)}
+.meter-row .meter{flex:1}
+/* Stat pips */
+.pips{display:inline-flex;gap:3px}
+.pips i{width:9px;height:9px;border-radius:2px;background:var(--bb-bg-deep);
+  box-shadow:var(--bevel-in);transform:rotate(45deg)}
+.pips i.on{background:linear-gradient(135deg, var(--bb-brass-hi), var(--bb-brass));
+  box-shadow:0 0 4px rgba(236,192,106,.5)}
+/* Lever toggle (option selectors) */
+.lever-group{display:grid;gap:8px}
+.lever{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  background:linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  border:1px solid var(--bb-iron);border-radius:var(--r-md);
+  padding:11px 14px;box-shadow:var(--bevel-out);
+  transition:transform var(--t-fast) var(--ease-heavy), border-color var(--t-fast), box-shadow var(--t-fast);
+  color:var(--bb-text);width:100%;
+}
+.lever:hover{transform:translateX(3px)}
+.lever[aria-pressed="true"]{
+  border-color:var(--bb-brass);
+  background:linear-gradient(180deg, #4a3722, var(--bb-surface-3));
+  box-shadow:var(--bevel-out), 0 0 0 1px var(--bb-brass), 0 0 14px rgba(201,150,63,.25);
+}
+.lever .knob{flex:none;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #6a5a45, #37281a 75%);
+  box-shadow:var(--bevel-in);transition:background var(--t-fast)}
+.lever[aria-pressed="true"] .knob{
+  background:radial-gradient(circle at 35% 30%, var(--bb-brass-hi), var(--bb-brass-lo) 75%);
+  box-shadow:0 0 8px rgba(236,192,106,.6)}
+.lever b{display:block;font-size:var(--fs-small)}
+.lever span{display:block;font-size:var(--fs-tiny);color:var(--bb-text-dim);line-height:1.35}
+/* Gauge dial (SVG) */
+.gauge{width:110px}
+/* Ticket stub — fight poster rows */
+.ticket{
+  display:flex;align-items:center;gap:14px;
+  background:linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  border:1px solid var(--bb-brass-lo);border-radius:var(--r-md);
+  padding:12px 16px;position:relative;overflow:hidden;
+}
+.ticket::before{content:'';position:absolute;left:-7px;top:50%;width:14px;height:14px;border-radius:50%;
+  background:var(--bb-bg);transform:translateY(-50%);border:1px solid var(--bb-brass-lo)}
+.ticket::after{content:'';position:absolute;right:-7px;top:50%;width:14px;height:14px;border-radius:50%;
+  background:var(--bb-bg);transform:translateY(-50%);border:1px solid var(--bb-brass-lo)}
+/* Toast */
+#toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:90;
+  display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(94vw,480px)}
+.toast{background:var(--bb-parchment);color:var(--bb-ink);border-radius:var(--r-md);
+  padding:10px 18px;font-weight:600;font-size:var(--fs-small);box-shadow:var(--shadow-2);
+  border:1px solid var(--bb-brass);animation:toastIn var(--t-med) var(--ease-spring) both;text-align:center}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.92)}to{opacity:1;transform:none}}
+.toast.leaving{animation:toastOut var(--t-med) ease both}
+@keyframes toastOut{to{opacity:0;transform:translateY(10px)}}
+/* Modal drawer */
+.modal-veil{position:fixed;inset:0;background:rgba(12,7,3,.72);z-index:80;
+  display:flex;align-items:center;justify-content:center;padding:var(--space-4);
+  animation:veilIn var(--t-med) ease both}
+@keyframes veilIn{from{opacity:0}to{opacity:1}}
+.modal{width:min(560px, 96vw);max-height:88vh;overflow:auto;
+  animation:modalIn var(--t-med) var(--ease-spring) both}
+@keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+/* Grid helpers */
+.grid{display:grid;gap:var(--space-4)}
+.cols-2{grid-template-columns:repeat(2, 1fr)}
+.cols-3{grid-template-columns:repeat(3, 1fr)}
+.row{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.row.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:var(--space-3)}
+.muted{color:var(--bb-text-dim)} .faint{color:var(--bb-text-faint)}
+.small{font-size:var(--fs-small)} .tiny{font-size:var(--fs-tiny)}
+.mono{font-family:var(--font-mono)}
+.center{text-align:center}
+hr.seam{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--bb-brass-lo),transparent);margin:var(--space-4) 0}
+
+/* ============================================================
+   SCREEN: ONBOARDING
+   ============================================================ */
+.onboard{max-width:720px;margin:0 auto}
+.onboard .hero-robot{display:flex;justify-content:center;margin:var(--space-4) 0}
+.step-dots{display:flex;gap:8px;justify-content:center;margin:var(--space-4) 0}
+.step-dots i{width:10px;height:10px;border-radius:50%;background:var(--bb-bg-deep);box-shadow:var(--bevel-in)}
+.step-dots i.on{background:radial-gradient(circle at 35% 30%, var(--bb-brass-hi), var(--bb-brass-lo))}
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.lang-card{
+  text-align:left;padding:12px;border-radius:var(--r-md);
+  background:linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  border:1px solid var(--bb-iron);box-shadow:var(--bevel-out);
+  transition:transform var(--t-fast) var(--ease-spring), border-color var(--t-fast), box-shadow var(--t-fast);
+  position:relative;color:var(--bb-text);
+}
+.lang-card:hover{transform:translateY(-3px) rotate(-.4deg)}
+.lang-card[aria-pressed="true"]{border-color:var(--lc);box-shadow:var(--bevel-out),0 0 0 1px var(--lc),0 0 16px color-mix(in srgb, var(--lc) 40%, transparent)}
+.lang-card .swatch{width:26px;height:26px;border-radius:8px;background:var(--lc);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 3px rgba(0,0,0,.35);margin-bottom:8px;
+  border:1px solid rgba(0,0,0,.4)}
+.lang-card b{font-size:var(--fs-small)}
+.lang-card span{display:block;font-size:var(--fs-tiny);color:var(--bb-text-dim);line-height:1.35;margin-top:2px}
+.lang-card .slot-tag{position:absolute;top:8px;right:8px}
+.name-input{
+  width:100%;font-family:var(--font-display);font-size:var(--fs-title);text-align:center;
+  background:var(--bb-bg-deep);border:1px solid var(--bb-brass-lo);border-radius:var(--r-md);
+  color:var(--bb-text);padding:12px 16px;box-shadow:var(--bevel-in);letter-spacing:.06em;
+}
+.name-input:focus{outline:3px solid var(--bb-focus);outline-offset:2px}
+.draft-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.program-card{
+  text-align:left;padding:14px;border-radius:var(--r-md);color:var(--bb-text);
+  background:
+    linear-gradient(160deg, rgba(255,235,190,.05), transparent 40%),
+    linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  border:1px solid var(--bb-iron);box-shadow:var(--bevel-out), var(--shadow-1);
+  transition:transform var(--t-med) var(--ease-spring), border-color var(--t-fast), box-shadow var(--t-med);
+  display:flex;flex-direction:column;gap:6px;min-height:150px;
+}
+.program-card:hover{transform:translateY(-4px) rotate(.5deg);box-shadow:var(--bevel-out),var(--shadow-2)}
+.program-card[aria-pressed="true"]{border-color:var(--bb-teal-hi);
+  box-shadow:var(--bevel-out),0 0 0 1px var(--bb-teal-hi),0 0 18px rgba(70,179,167,.3)}
+.program-card .chip-art{width:44px;height:44px}
+.program-card b{font-family:var(--font-display);font-size:var(--fs-sub);color:var(--bb-brass-hi)}
+.program-card .trig{font-family:var(--font-mono);font-size:var(--fs-tiny);color:var(--bb-teal-hi)}
+.program-card .fx{font-size:var(--fs-small);line-height:1.4}
+.program-card .flavor{font-size:var(--fs-tiny);color:var(--bb-text-faint);font-style:italic;margin-top:auto}
+
+/* ============================================================
+   SCREEN: GYM (hub)
+   ============================================================ */
+.gym-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:var(--space-4)}
+.boxer-card .portrait-stage{
+  display:flex;justify-content:center;align-items:flex-end;
+  background:
+    radial-gradient(ellipse at 50% 90%, rgba(255,184,77,.12), transparent 60%),
+    linear-gradient(180deg, var(--bb-bg-deep), var(--bb-surface));
+  border-radius:var(--r-md);border:1px solid var(--bb-brass-lo);
+  min-height:190px;box-shadow:var(--bevel-in);position:relative;overflow:hidden;
+}
+.portrait-stage .lamp{position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:120px;height:60px;background:radial-gradient(ellipse at top, rgba(255,220,150,.18), transparent 70%)}
+.next-poster{
+  background:
+    repeating-linear-gradient(0deg, transparent 0 26px, rgba(0,0,0,.08) 26px 27px),
+    linear-gradient(180deg, var(--bb-parchment), var(--bb-parch-dim));
+  color:var(--bb-ink);border-radius:var(--r-md);padding:var(--space-4);
+  box-shadow:var(--bevel-in);text-align:center;position:relative;overflow:hidden;
+}
+.next-poster::before{content:'★ ★ ★';position:absolute;top:8px;left:0;right:0;
+  letter-spacing:1.2em;font-size:10px;color:var(--bb-copper);text-indent:1.2em}
+.next-poster h3{font-size:var(--fs-title);margin:14px 0 2px;text-transform:uppercase;letter-spacing:.05em}
+.next-poster .vs{font-family:var(--font-display);font-style:italic;color:var(--bb-garnet);font-size:var(--fs-sub)}
+.next-poster .venue{font-size:var(--fs-tiny);letter-spacing:.2em;text-transform:uppercase;color:var(--bb-ink-soft)}
+.hub-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.hub-tile{
+  display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+  padding:16px 10px;border-radius:var(--r-md);color:var(--bb-text);
+  background:linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  border:1px solid var(--bb-iron);box-shadow:var(--bevel-out);
+  transition:transform var(--t-fast) var(--ease-spring), border-color var(--t-fast);
+}
+.hub-tile:hover{transform:translateY(-3px);border-color:var(--bb-brass)}
+.hub-tile .ico{width:30px;height:30px}
+.hub-tile b{font-size:var(--fs-small)}
+.hub-tile span{font-size:var(--fs-tiny);color:var(--bb-text-dim)}
+.integrity-tokens{display:flex;gap:6px}
+.token{width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, var(--bb-teal-hi), var(--bb-teal) 70%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 1px 3px rgba(0,0,0,.5);
+  border:1px solid rgba(0,0,0,.4)}
+.token.spent{background:radial-gradient(circle at 35% 30%, #55483a, #33291d 70%);opacity:.6}
+
+/* ============================================================
+   SCREEN: ROSTER / LINEAGE
+   ============================================================ */
+.lineage-hall{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:var(--space-4)}
+.frame{
+  background:linear-gradient(180deg,#3b2c1c,#2c2013);
+  border:6px solid transparent;
+  border-image:linear-gradient(160deg, var(--bb-brass-hi), var(--bb-brass-lo) 60%, var(--bb-brass)) 1;
+  padding:12px;text-align:center;box-shadow:var(--shadow-1);
+}
+.frame .plaque{margin-top:8px;background:linear-gradient(180deg,var(--bb-brass-hi),var(--bb-brass));
+  color:var(--bb-ink);border-radius:4px;padding:3px 8px;font-size:var(--fs-tiny);font-weight:700;
+  letter-spacing:.06em;display:inline-block;box-shadow:var(--bevel-out)}
+.frame .era{font-size:var(--fs-tiny);color:var(--bb-text-faint);margin-top:4px}
+
+/* ============================================================
+   SCREEN: WORKSHOP (programs)
+   ============================================================ */
+.slot-bay{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+.slot{
+  border:2px dashed var(--bb-brass-lo);border-radius:var(--r-md);
+  min-height:150px;display:flex;align-items:center;justify-content:center;
+  background:var(--bb-bg-deep);box-shadow:var(--bevel-in);padding:10px;position:relative;
+}
+.slot .slot-label{position:absolute;top:-10px;left:12px;background:var(--bb-surface-2);
+  padding:0 8px;font-size:var(--fs-tiny);letter-spacing:.14em;text-transform:uppercase;color:var(--bb-brass-hi)}
+.slot.filled{border-style:solid;border-color:var(--bb-teal)}
+.slot .program-card{width:100%;min-height:0}
+.bank-rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.install-pulse{animation:installPulse .5s var(--ease-spring)}
+@keyframes installPulse{0%{transform:scale(.9);filter:brightness(1.6)}100%{transform:scale(1)}}
+
+/* ============================================================
+   SCREEN: TRAINING & STRATEGY
+   ============================================================ */
+.strategy-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);align-items:start}
+.scout-note{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed rgba(43,33,24,.25)}
+.scout-note:last-child{border-bottom:none}
+.scout-note .pin{flex:none;width:12px;height:12px;border-radius:50%;margin-top:4px;
+  background:radial-gradient(circle at 35% 30%, var(--bb-garnet-hi), var(--bb-garnet));
+  box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.scout-note.locked{opacity:.55;filter:blur(.4px)}
+.gp-section{margin-bottom:var(--space-4)}
+.gp-section h4{font-size:var(--fs-tiny);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--bb-text-faint);margin-bottom:8px;font-family:var(--font-ui)}
+.focus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+
+/* ============================================================
+   SCREEN: FIGHT
+   ============================================================ */
+.arena{
+  position:relative;border-radius:var(--r-lg);overflow:hidden;
+  border:1px solid var(--bb-brass-lo);box-shadow:var(--shadow-2);
+  min-height:300px;display:flex;flex-direction:column;
+}
+.arena .backdrop{position:absolute;inset:0}
+.arena .ring-floor{position:absolute;left:0;right:0;bottom:0;height:34%;
+  background:linear-gradient(180deg, #4a3826, #38291a);
+  border-top:3px solid var(--bb-brass-lo)}
+.arena .ropes{position:absolute;left:4%;right:4%;bottom:30%;height:2px;background:var(--bb-garnet);opacity:.8;
+  box-shadow:0 -14px 0 rgba(176,67,83,.55), 0 -28px 0 rgba(176,67,83,.35)}
+.fighters{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:20px 7% 6%;min-height:230px;z-index:2}
+.fighter-zone{display:flex;flex-direction:column;align-items:center;gap:4px;width:170px}
+.fighter-zone .nameplate{font-family:var(--font-display);font-size:var(--fs-small);
+  background:rgba(20,14,9,.75);border:1px solid var(--bb-brass-lo);border-radius:var(--r-pill);
+  padding:2px 12px;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.robot{transition:transform var(--t-med) var(--ease-spring)}
+.robot.hit{animation:hitShake .42s var(--ease-heavy)}
+@keyframes hitShake{0%{transform:translateX(0)}25%{transform:translateX(-9px) rotate(-2.5deg)}55%{transform:translateX(6px) rotate(1.5deg)}100%{transform:translateX(0)}}
+.robot.attack-r{animation:lungeR .45s var(--ease-heavy)}
+@keyframes lungeR{0%{transform:translateX(0)}18%{transform:translateX(-8px)}45%{transform:translateX(26px)}100%{transform:translateX(0)}}
+.robot.attack-l{animation:lungeL .45s var(--ease-heavy)}
+@keyframes lungeL{0%{transform:translateX(0)}18%{transform:translateX(8px)}45%{transform:translateX(-26px)}100%{transform:translateX(0)}}
+.robot.ko-anim{animation:koFall 1s var(--ease-heavy) both}
+@keyframes koFall{30%{transform:rotate(4deg)}100%{transform:rotate(84deg) translateY(26px);opacity:.9}}
+.impact-star{position:absolute;pointer-events:none;z-index:3;animation:impact .5s var(--ease-heavy) both}
+@keyframes impact{0%{transform:scale(.3) rotate(-12deg);opacity:0}25%{opacity:1}100%{transform:scale(1.25) rotate(8deg);opacity:0}}
+.fight-hud{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--space-3);align-items:center;
+  padding:var(--space-3);position:relative;z-index:4;
+  background:linear-gradient(180deg, rgba(20,14,9,.88), rgba(20,14,9,.72));border-bottom:1px solid var(--bb-brass-lo)}
+.round-bell{display:flex;flex-direction:column;align-items:center;gap:2px}
+.round-bell .bell-num{font-family:var(--font-display);font-size:var(--fs-title);color:var(--bb-brass-hi);line-height:1}
+.round-bell .tiny{letter-spacing:.2em}
+.commentary{
+  background:var(--bb-bg-deep);border-top:1px solid var(--bb-brass-lo);
+  padding:var(--space-3) var(--space-4);min-height:130px;max-height:190px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:7px;position:relative;z-index:2;
+}
+.call{display:flex;gap:10px;align-items:baseline;animation:callIn var(--t-med) var(--ease-heavy) both;font-size:var(--fs-small)}
+@keyframes callIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.call .who{flex:none;font-weight:700;width:78px;text-align:right;font-size:var(--fs-tiny);
+  text-transform:uppercase;letter-spacing:.05em}
+.call.you .who{color:var(--bb-teal-hi)} .call.them .who{color:var(--bb-garnet-hi)}
+.call.sys .who{color:var(--bb-amber)}
+.call .why{display:block;font-size:var(--fs-tiny);color:var(--bb-text-faint);font-style:italic}
+.fight-controls{display:flex;gap:8px;justify-content:center;padding:var(--space-3);flex-wrap:wrap;
+  background:var(--bb-surface);border-top:1px solid var(--bb-brass-lo)}
+/* Intervention moment */
+.intervene-veil{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,6,3,.88);padding:var(--space-4)}
+.intervene-veil .corner-card{animation:modalIn var(--t-med) var(--ease-spring) both}
+.corner-card{width:min(520px,94%);
+  background:linear-gradient(180deg, #3a2b1b, #2a1e14);
+  box-shadow:var(--bevel-out), var(--shadow-3), 0 0 0 1px var(--bb-brass-lo);}
+.corner-card .lever{background:linear-gradient(180deg, #46341f, #392a19)}
+.corner-card .options{display:grid;gap:8px;margin-top:var(--space-3)}
+.token-chip{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-tiny);color:var(--bb-amber)}
+.momentum{display:flex;align-items:center;gap:8px}
+.momentum .track{flex:1;height:10px;border-radius:var(--r-pill);background:var(--bb-bg-deep);
+  box-shadow:var(--bevel-in);position:relative;overflow:hidden}
+.momentum .track i{position:absolute;top:0;bottom:0;left:50%;width:0;transition:all var(--t-slow) var(--ease-heavy)}
+.momentum .track i.you{background:linear-gradient(90deg, transparent, var(--bb-teal-hi))}
+.momentum .track i.them{background:linear-gradient(90deg, var(--bb-garnet-hi), transparent)}
+
+/* ============================================================
+   SCREEN: DEBRIEF
+   ============================================================ */
+.verdict-poster{text-align:center;padding:var(--space-6) var(--space-4)}
+.verdict-poster .verdict{font-size:var(--fs-hero);letter-spacing:.12em;text-transform:uppercase;
+  font-family:var(--font-display)}
+.verdict-poster.win .verdict{color:var(--bb-win);text-shadow:0 0 24px rgba(143,176,94,.4)}
+.verdict-poster.loss .verdict{color:var(--bb-loss);text-shadow:0 0 24px rgba(212,104,122,.35)}
+.attrib-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed rgba(240,226,196,.12)}
+.attrib-row:last-child{border-bottom:none}
+.attrib-row .src{flex:1;font-size:var(--fs-small)}
+.attrib-row .src small{display:block;color:var(--bb-text-faint);font-size:var(--fs-tiny)}
+.attrib-row .gain{font-family:var(--font-mono);color:var(--bb-teal-hi);font-weight:700}
+.growth-bar{height:12px;border-radius:var(--r-pill);flex:1.2;background:var(--bb-bg-deep);
+  box-shadow:var(--bevel-in);overflow:hidden;position:relative}
+.growth-bar i{position:absolute;inset:2px auto 2px 2px;width:0;border-radius:var(--r-pill);
+  background:linear-gradient(180deg,var(--bb-teal-hi),var(--bb-teal));
+  transition:width .8s var(--ease-heavy)}
+
+/* ============================================================
+   SCREEN: REPAIRS
+   ============================================================ */
+.bay-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+.repair-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed rgba(240,226,196,.12)}
+.repair-row:last-child{border-bottom:none}
+.repair-row .desc{flex:1}
+.repair-row .desc b{font-size:var(--fs-small)}
+.repair-row .desc span{display:block;font-size:var(--fs-tiny);color:var(--bb-text-dim)}
+.sparks{position:relative;overflow:visible}
+@keyframes sparkFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+.spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--bb-amber);
+  box-shadow:0 0 6px var(--bb-amber);animation:sparkFly .6s ease-out both;pointer-events:none}
+
+/* ============================================================
+   SCREEN: LEAGUE (campaign map)
+   ============================================================ */
+.campaign-path{position:relative;padding:var(--space-2) 0}
+.venue-block{margin-bottom:var(--space-5)}
+.venue-name{font-family:var(--font-display);color:var(--bb-brass-hi);font-size:var(--fs-sub);
+  display:flex;align-items:center;gap:10px;margin-bottom:var(--space-3)}
+.venue-name::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bb-brass-lo),transparent)}
+.bout-row{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.bout{
+  flex:1;min-width:150px;padding:12px;border-radius:var(--r-md);position:relative;
+  background:linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2));
+  border:1px solid var(--bb-iron);box-shadow:var(--bevel-out);
+}
+.bout.done{opacity:.75;border-color:var(--bb-moss)}
+.bout.next{border-color:var(--bb-brass);box-shadow:var(--bevel-out),0 0 0 1px var(--bb-brass),0 0 18px rgba(201,150,63,.22)}
+.bout.locked{opacity:.45}
+.bout.boss{background:linear-gradient(180deg, #43263030, transparent), linear-gradient(180deg, var(--bb-surface-3), var(--bb-surface-2))}
+.bout .b-num{position:absolute;top:-9px;left:10px;background:var(--bb-brass);color:var(--bb-ink);
+  font-size:var(--fs-tiny);font-weight:800;border-radius:var(--r-pill);padding:1px 8px;box-shadow:var(--shadow-1)}
+.bout b{display:block;font-size:var(--fs-small);margin-top:4px}
+.bout .res{font-size:var(--fs-tiny);font-weight:700}
+.rival-transmission{
+  border:1px solid var(--bb-garnet);border-radius:var(--r-md);
+  background:linear-gradient(180deg, rgba(176,67,83,.12), transparent), var(--bb-surface);
+  padding:var(--space-4);display:flex;gap:12px;align-items:flex-start;
+  animation:crackle 6s infinite steps(2);
+}
+@keyframes crackle{0%,94%{filter:none}95%{filter:brightness(1.2)}96%{filter:none}98%{filter:brightness(.9)}}
+.rival-transmission .visor{flex:none;width:52px;height:52px;border-radius:10px;
+  background:radial-gradient(circle at 50% 40%, #5a1f28, #2a1014);border:1px solid var(--bb-garnet);
+  display:flex;align-items:center;justify-content:center}
+.rival-transmission .visor i{width:26px;height:7px;background:var(--bb-garnet-hi);border-radius:3px;
+  box-shadow:0 0 10px var(--bb-garnet-hi)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  .gym-grid,.strategy-grid,.bay-grid{grid-template-columns:1fr}
+  .cols-3{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  #app{padding:0 var(--space-3) 90px}
+  .cols-2,.cols-3{grid-template-columns:1fr}
+  .slot-bay{grid-template-columns:1fr}
+  .plate{padding:var(--space-4)}
+  .fighters{padding:14px 4% 4%}
+  .fighter-zone{width:128px}
+  .fighter-zone .robot svg, .fighter-zone svg{width:110px}
+  .call .who{width:64px}
+  .tab{padding:8px 11px}
+  .tab .txt{display:none}
+  .tab .ico{width:19px;height:19px}
+  .masthead .marque small{display:none}
+}
+@media (min-width:641px) and (max-width:900px){
+  .lineage-hall{grid-template-columns:repeat(3,1fr)}
+}
+/* Spin ornament */
+.spin-slow{animation:spin 14s linear infinite;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Reduced motion — kill it all */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;
+    transition-duration:.001s !important}
+  .spin-slow{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="masthead">
+    <a class="marque" href="#" data-nav="gym" aria-label="Binary Boxer home">
+      <svg class="gear spin-slow" viewBox="0 0 40 40" aria-hidden="true">
+        <g fill="none" stroke="var(--bb-brass)" stroke-width="2.4">
+          <circle cx="20" cy="20" r="8.5" fill="var(--bb-surface-2)"/>
+          <g stroke-linecap="round">
+            <path d="M20 4v5M20 31v5M4 20h5M31 20h5M8.7 8.7l3.5 3.5M27.8 27.8l3.5 3.5M31.3 8.7l-3.5 3.5M12.2 27.8l-3.5 3.5"/>
+          </g>
+          <circle cx="20" cy="20" r="3" fill="var(--bb-brass)"/>
+        </g>
+      </svg>
+      <div>
+        <h1>Binary Boxer</h1>
+        <small>Robot Boxing Management</small>
+      </div>
+    </a>
+    <div class="spacer"></div>
+    <div class="coin-purse" id="purse" title="Scrap — spend in the workshop">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="var(--bb-amber)" stroke="var(--bb-brass-lo)"/><text x="7" y="10" text-anchor="middle" font-size="8" font-weight="bold" fill="var(--bb-ink)">§</text></svg>
+      <span id="purse-val">120</span><span class="tiny faint">scrap</span>
+    </div>
+  </header>
+  <nav class="tab-rail" role="tablist" aria-label="Main navigation" id="mainnav"></nav>
+  <main id="stage" tabindex="-1"></main>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<div id="modal-root"></div>
+<script>
+'use strict';
+/* ============================================================
+   BINARY BOXER — Manager-Mode UX prototype
+   Faithful to docs/plans/binaryboxer-redesign-decisions.md:
+   gameplan (Approach/Priority/Contingency), behavioural scouting,
+   interventions as policy shifts, explainable boxer AI (reason
+   strings), programs w/ 2 slots, fixed-budget growth attribution,
+   integrity lives, campaign arc w/ rival.
+   ============================================================ */
+
+/* ---------- Seeded RNG (Mulberry32 — same technique as engine) ---------- */
+function mulberry32(seed){let t=seed>>>0;return function(){t=(t+0x6D2B79F5)|0;let r=Math.imul(t^(t>>>15),t|1);r^=r+Math.imul(r^(r>>>7),r|61);return((r^(r>>>14))>>>0)/4294967296}}
+
+/* ---------- Static content ---------- */
+const LANGS={
+  rust:{name:'Rust', color:'var(--lang-rust)', temper:'unhurried, armoured, a little smug about it', signature:'Iron Curtain — a braced counter-guard', lean:'durability', voice:q=>`«${q}» — said slowly, with total certainty.`},
+  javascript:{name:'JavaScript', color:'var(--lang-javascript)', temper:'improvises everything, apologises for nothing', signature:'Hot Patch — swings mid-stumble', lean:'adaptability', voice:q=>`«${q}!» — shouted before thinking.`},
+  python:{name:'Python', color:'var(--lang-python)', temper:'reads the room, then the opponent', signature:'Clean Sweep — an elegant low feint', lean:'balance', voice:q=>`«${q}» — plainly, almost kindly.`},
+  cpp:{name:'C++', color:'var(--lang-cpp)', temper:'precise, old-school, keeps grudges', signature:'Manual Override — a measured stop-hit', lean:'accuracy', voice:q=>`«${q}» — annotated with footnotes.`},
+  css:{name:'CSS', color:'var(--lang-css)', temper:'theatrical; wins beautifully or loses beautifully', signature:'Flexbox Flourish — an angle no one expects', lean:'flair', voice:q=>`«${q}» — with a bow.`},
+  go:{name:'Go', color:'var(--lang-go)', temper:'brisk, tidy, allergic to drama', signature:'Routine — three punches, no wasted motion', lean:'tempo', voice:q=>`«${q}.» No further comment.`},
+  typescript:{name:'TypeScript', color:'var(--lang-typescript)', temper:'cautious until certain, then relentless', signature:'Type Guard — a check before every step in', lean:'discipline', voice:q=>`«${q}» — after checking twice.`},
+  c:{name:'C', color:'var(--lang-c)', temper:'ancient, blunt, terrifyingly direct', signature:'Segmentation Fold — one short, ruinous hook', lean:'power', voice:q=>`«${q}»`},
+  haskell:{name:'Haskell', color:'var(--lang-haskell)', temper:'sees the fight as a proof to complete', signature:'Lazy Evaluation — waits, then answers everything at once', lean:'patience', voice:q=>`«${q}» — QED.`},
+  lua:{name:'Lua', color:'var(--lang-lua)', temper:'small, quick, absurdly cheerful', signature:'Coroutine — a weave that never quite stops', lean:'agility', voice:q=>`«${q}» — grinning.`},
+};
+const OSES=[
+  {id:'brasscog', name:'BrassCog 1.0', motto:'Steady hands, steady rounds.', temper:'Composed', capacity:'2 program slots', bias:'Holds shape under pressure; slow to seize openings.', flavor:'A dependable old engine that has never once panicked.'},
+  {id:'wildspark', name:'WildSpark 0.9β', motto:'Swing first, patch later.', temper:'Eager', bias:'Hunts openings aggressively; guard discipline wobbles.', capacity:'2 program slots', flavor:'Ships with three known bugs. Two of them are punches.'},
+  {id:'porcelain', name:'Porcelain OS', motto:'Observe. Then conclude.', temper:'Analytical', bias:'Studies before committing; can hesitate at the bell.', capacity:'2 program slots', flavor:'Thinks in complete sentences. Punches in them, too.'},
+];
+const PROGRAMS=[
+  {id:'profiler', name:'Profiler', kind:'utility', trigger:'onRoundStart', effect:'Reveals one extra behavioural tell about the opponent.', flavor:'It takes notes. Rude, accurate notes.'},
+  {id:'firewall', name:'Firewall', kind:'core', trigger:'onGuard', effect:'Guards absorb more, but tempo drops for the round.', flavor:'Nothing gets in. Including, occasionally, ambition.'},
+  {id:'jit', name:'JIT', kind:'core', trigger:'onVariedHits', effect:'Rewards varied successful actions; generates heat if spammed.', flavor:'Fast in exactly the way that worries the coaches.'},
+  {id:'rollback', name:'Rollback', kind:'utility', trigger:'onCrash', effect:'Prevents one crash per fight, then disables itself.', flavor:'Undo, as a lifestyle.'},
+  {id:'watchdog', name:'Watchdog', kind:'utility', trigger:'onLowIntegrity', effect:'Below 35% integrity, defensive contingencies trigger a round earlier.', flavor:'It barks. The bite is contractual.'},
+  {id:'overclock', name:'Overclock Governor', kind:'core', trigger:'onBehind', effect:'When behind on points after round 3, tempo rises and heat builds.', flavor:'The red line is a suggestion.'},
+];
+const ARCHETYPES={
+  bruiser:{name:'Bruiser', plan:'Walks you down and swings heavy.',
+    tells:['throws wide after eating two clean jabs','long recovery after heavy attacks','guard drops when frustrated'],
+    counterHint:'Technical answers beat rage.'},
+  counterpuncher:{name:'Counter-puncher', plan:'Waits for your mistake and taxes it.',
+    tells:['refuses to lead for the first minute','steps off-line after every block','punishes overcommitment instantly'],
+    counterHint:'Pressure without overcommitting.'},
+  technician:{name:'Technician', plan:'Wins the fight on scorecards you didn’t know existed.',
+    tells:['guard weakens under sustained pressure','resets to half-guard when hurt','prefers the outside lane'],
+    counterHint:'Break the rhythm; deny the outside.'},
+};
+const ARC=[
+  {n:1,setting:'The Boiler Club', arch:'bruiser', variant:'Scrapheap', name:'PISTON PETE', boss:false},
+  {n:2,setting:'The Boiler Club', arch:'counterpuncher', variant:'Patient', name:'MEMORY LEAK', boss:false},
+  {n:3,setting:'The Boiler Club', arch:'technician', variant:'Fussy', name:'LINTERELLA', boss:false},
+  {n:4,setting:'Gearworks Hall', arch:'bruiser', variant:'Armoured', name:'MUTEX LOCK', boss:false},
+  {n:5,setting:'Gearworks Hall', arch:'counterpuncher', variant:'Spiteful', name:'THE GARBAGE COLLECTOR', boss:true},
+  {n:6,setting:'Gearworks Hall', arch:'technician', variant:'Outside', name:'DANGLING POINTER', boss:false},
+  {n:7,setting:'The Crystal Foundry', arch:'bruiser', variant:'Rushdown', name:'STACK SMASHER', boss:false},
+  {n:8,setting:'The Crystal Foundry', arch:'counterpuncher', variant:'Mirror', name:'RACE CONDITION', boss:false},
+  {n:9,setting:'The Crystal Foundry', arch:'technician', variant:'Grand', name:'THE COMPILER', boss:true},
+  {n:10,setting:'The Signal Spire', arch:'bruiser', variant:'Desperate', name:'KERNEL PANIC', boss:false},
+  {n:11,setting:'The Signal Spire', arch:'counterpuncher', variant:'Perfect', name:'PROTOCOL', boss:false},
+  {n:12,setting:'The Signal Spire', arch:'technician', variant:'Rival', name:'DR. NULLPOINTER', boss:true, rival:true},
+];
+const RIVAL_LINES=[
+  'Your little engine amuses me. I have already read its ending.',
+  'Every arena you win, I own the deed to. Keep going. Decorate my property.',
+  'You train it with kindness. I will debug that out of you both.',
+];
+const GAMEPLAN={
+  approach:[
+    {id:'pressure', name:'Pressure', tip:'Walk forward, cut the ring, make them work every second.'},
+    {id:'counter', name:'Counter', tip:'Let them lead; answer mistakes with interest.'},
+    {id:'technical', name:'Technical', tip:'Control range and tempo; win the long argument.'},
+  ],
+  priority:[
+    {id:'punish', name:'Punish recovery', tip:'Strike hardest in the pause after their big swings.'},
+    {id:'drain', name:'Drain stability', tip:'Body work and tempo to sap their footing.'},
+    {id:'break', name:'Break guard', tip:'Stack hits on the guard until it cracks.'},
+  ],
+  contingency:[
+    {id:'protect', name:'Protect the lead', tip:'If ahead late, tighten up and see it home.'},
+    {id:'surge', name:'Overclock when behind', tip:'If behind late, spend heat to force the issue.'},
+    {id:'shell', name:'Emergency shell', tip:'Below 35% integrity, prioritise survival.'},
+  ],
+};
+const INTERVENTIONS=[
+  {id:'exploit', name:'Exploit the opening', tip:'Commit hard to the pattern we’ve read. Risk: overcommit.'},
+  {id:'recover', name:'Recover stability', tip:'Give away a round to rebuild footing and guard.'},
+  {id:'trust', name:'Trust your boxer', tip:'No instruction. Keep the token; the corner stays quiet.'},
+];
+
+/* ---------- Persistent state ---------- */
+const DEFAULT_STATE={
+  screen:'onboarding', onboardStep:0,
+  name:'', lang1:null, lang2:null, os:null,
+  draftChoices:[], programCore:null, programUtility:null, bank:[],
+  fightIndex:0, wins:0, losses:0, integrity:3, scrap:120,
+  condition:100, growth:{power:2,accuracy:2,durability:2,tempo:2},
+  trainingFocus:null, gameplan:{approach:null,priority:null,contingency:null},
+  scouted:[], lineage:[], seenIntro:false, log:[],
+  arcDone:false,
+};
+let S=loadState();
+function loadState(){try{const raw=localStorage.getItem('bb-proto-v1');if(raw)return Object.assign({},DEFAULT_STATE,JSON.parse(raw))}catch(e){}return {...DEFAULT_STATE}}
+function save(){try{localStorage.setItem('bb-proto-v1',JSON.stringify(S))}catch(e){}}
+function resetAll(){localStorage.removeItem('bb-proto-v1');S={...DEFAULT_STATE};nav('onboarding')}
+
+/* ---------- Utilities ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;$('#toasts').appendChild(t);setTimeout(()=>{t.classList.add('leaving');setTimeout(()=>t.remove(),300)},2600)}
+function purse(){$('#purse-val').textContent=S.scrap}
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Robot SVG builder (expressive silhouettes) ---------- */
+function robotSVG(l1,l2,opts={}){
+  const c1=l1?LANGS[l1].color:'var(--bb-iron)', c2=l2?LANGS[l2].color:'var(--bb-brass)';
+  const size=opts.size||150, pose=opts.pose||'idle', flip=opts.flip?'scale(-1,1) translate(-160,0)':'';
+  const armL=pose==='jab'?'rotate(-38 52 78)':pose==='guard'?'rotate(-72 52 78)':'rotate(-10 52 78)';
+  const armR=pose==='jab'?'rotate(6 108 78)':pose==='guard'?'rotate(66 108 78)':'rotate(10 108 78)';
+  const eye=opts.ko?'M -5 0 l10 8 M -5 8 l10 -8':null;
+  return `<svg viewBox="0 0 160 170" width="${size}" role="img" aria-label="${esc(opts.label||'robot boxer')}" class="robot ${pose}">
+    <ellipse cx="80" cy="160" rx="46" ry="7" fill="rgba(0,0,0,.35)"/>
+    <g class="robot-body">
+      <g transform="${flip}">
+      <!-- legs -->
+      <rect x="58" y="118" width="14" height="30" rx="6" fill="${c1}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      <rect x="88" y="118" width="14" height="30" rx="6" fill="${c1}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      <ellipse cx="65" cy="152" rx="14" ry="8" fill="var(--bb-iron)" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      <ellipse cx="95" cy="152" rx="14" ry="8" fill="var(--bb-iron)" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      <!-- torso: rounded boiler w/ enamel panel -->
+      <rect x="46" y="62" width="68" height="62" rx="22" fill="${c1}" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+      <rect x="58" y="74" width="44" height="34" rx="10" fill="${c2}" opacity=".85" stroke="var(--bb-bg-deep)" stroke-width="2"/>
+      <circle cx="80" cy="91" r="8" fill="var(--bb-amber)" stroke="var(--bb-bg-deep)" stroke-width="2">
+        ${REDUCED?'':'<animate attributeName="opacity" values="1;.55;1" dur="2.4s" repeatCount="indefinite"/>'}
+      </circle>
+      <!-- rivets -->
+      <circle cx="52" cy="70" r="2.2" fill="var(--bb-brass-hi)"/><circle cx="108" cy="70" r="2.2" fill="var(--bb-brass-hi)"/>
+      <circle cx="52" cy="116" r="2.2" fill="var(--bb-brass-hi)"/><circle cx="108" cy="116" r="2.2" fill="var(--bb-brass-hi)"/>
+      <!-- arms + gloves -->
+      <g transform="${armL}" class="arm arm-l">
+        <rect x="34" y="72" width="14" height="34" rx="7" fill="${c1}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+        <circle cx="41" cy="112" r="13" fill="var(--bb-garnet)" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+        <path d="M33 108 q8 -6 16 0" stroke="rgba(255,255,255,.35)" stroke-width="2" fill="none"/>
+      </g>
+      <g transform="${armR}" class="arm arm-r">
+        <rect x="112" y="72" width="14" height="34" rx="7" fill="${c1}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+        <circle cx="119" cy="112" r="13" fill="var(--bb-garnet)" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+        <path d="M111 108 q8 -6 16 0" stroke="rgba(255,255,255,.35)" stroke-width="2" fill="none"/>
+      </g>
+      <!-- head: kettle dome + expressive eyes -->
+      <g class="head">
+        <rect x="56" y="26" width="48" height="40" rx="16" fill="${c1}" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+        <rect x="62" y="34" width="36" height="18" rx="9" fill="var(--bb-bg-deep)"/>
+        ${opts.ko
+          ? `<g stroke="var(--bb-amber)" stroke-width="2.4" stroke-linecap="round"><path transform="translate(72,43)" d="${eye}"/><path transform="translate(90,43)" d="${eye}"/></g>`
+          : `<circle cx="72" cy="43" r="4" fill="var(--bb-amber)" class="eye"/><circle cx="90" cy="43" r="4" fill="var(--bb-amber)" class="eye"/>`}
+        <circle cx="80" cy="20" r="5" fill="${c2}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+        <rect x="77" y="22" width="6" height="8" fill="${c2}" stroke="var(--bb-bg-deep)" stroke-width="2"/>
+        <path d="M56 46 h-7 m111 0 h-104" stroke="none"/>
+        <circle cx="53" cy="46" r="5" fill="${c2}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+        <circle cx="107" cy="46" r="5" fill="${c2}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      </g>
+      </g>
+    </g>
+  </svg>`;
+}
+function enemySVG(arch,opts={}){
+  const size=opts.size||150;
+  const c=arch==='bruiser'?'#7a4a3a':arch==='counterpuncher'?'#3f5d75':'#5d5470';
+  const c2=arch==='bruiser'?'#a3552f':arch==='counterpuncher'?'#5f8cad':'#8a7fae';
+  const shape= arch==='bruiser'
+    ? `<rect x="40" y="58" width="80" height="66" rx="14" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+       <rect x="52" y="24" width="56" height="40" rx="8" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="3"/>`
+    : arch==='counterpuncher'
+    ? `<path d="M80 56 c30 0 36 22 34 44 c-2 20 -16 26 -34 26 c-18 0 -32 -6 -34 -26 c-2 -22 4 -44 34 -44 z" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+       <ellipse cx="80" cy="42" rx="24" ry="20" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="3"/>`
+    : `<rect x="48" y="58" width="64" height="66" rx="26" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="3"/>
+       <rect x="58" y="22" width="44" height="42" rx="20" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="3"/>`;
+  const eyes=opts.ko
+    ?`<g stroke="#ff9d7a" stroke-width="2.4" stroke-linecap="round"><path d="M68 40 l8 7 M68 47 l8 -7"/><path d="M84 40 l8 7 M84 47 l8 -7"/></g>`
+    :`<rect x="64" y="38" width="32" height="9" rx="4.5" fill="#ffb37a" opacity=".95"/>`;
+  return `<svg viewBox="0 0 160 170" width="${size}" role="img" aria-label="${esc(opts.label||'opponent')}" class="robot enemy">
+    <ellipse cx="80" cy="160" rx="46" ry="7" fill="rgba(0,0,0,.35)"/>
+    <g transform="scale(-1,1) translate(-160,0)">
+      <rect x="56" y="118" width="15" height="30" rx="6" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      <rect x="88" y="118" width="15" height="30" rx="6" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/>
+      ${shape}
+      <rect x="58" y="72" width="44" height="30" rx="8" fill="${c2}" opacity=".7" stroke="var(--bb-bg-deep)" stroke-width="2"/>
+      <g transform="rotate(-14 48 80)"><rect x="32" y="70" width="14" height="36" rx="7" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/><circle cx="39" cy="112" r="13" fill="#403833" stroke="var(--bb-bg-deep)" stroke-width="3"/></g>
+      <g transform="rotate(14 112 80)"><rect x="114" y="70" width="14" height="36" rx="7" fill="${c}" stroke="var(--bb-bg-deep)" stroke-width="2.5"/><circle cx="121" cy="112" r="13" fill="#403833" stroke="var(--bb-bg-deep)" stroke-width="3"/></g>
+      <rect x="60" y="32" width="40" height="22" rx="6" fill="var(--bb-bg-deep)"/>
+      ${eyes}
+    </g>
+  </svg>`;
+}
+/* ============================================================
+   FIGHT SIMULATION — Manager-Mode faithful:
+   • boxer acts autonomously, every action narrated with a reason
+   • gameplan (approach/priority/contingency) shapes weights
+   • archetype variants + behavioural tells
+   • interventions = multi-round policy shifts (1 ordinary / 2 boss)
+   • growth attributed to plan/contingency/interventions
+   ============================================================ */
+function simulateFight(seedBase){
+  const bout=ARC[S.fightIndex];
+  const rng=mulberry32(seedBase);
+  const arch=ARCHETYPES[bout.arch];
+  const gp=S.gameplan;
+  const hasProgram=id=>S.programCore===id||S.programUtility===id;
+  const events=[]; const interventionsAt=[];
+  const totalRounds=bout.boss?6:4;
+  const maxInterv=bout.boss?2:1;
+  // effectiveness modifiers
+  const counterMatrix={ pressure:{bruiser:-8,counterpuncher:-12,technician:14}, counter:{bruiser:14,counterpuncher:-6,technician:-10}, technical:{bruiser:6,counterpuncher:10,technician:-4} };
+  let planEdge=(counterMatrix[gp.approach]?.[bout.arch])??0;
+  if(gp.priority==='punish'&&bout.arch==='bruiser')planEdge+=8;
+  if(gp.priority==='drain'&&bout.arch==='technician')planEdge+=6;
+  if(gp.priority==='break'&&bout.arch==='counterpuncher')planEdge+=6;
+  const focusEdge=S.trainingFocus? 4:0;
+  let you=100, them=100, momentum=0, heat=0, intervUsed=0;
+  let policy=null, policyRounds=0;
+  const youName=S.name||'YOUR BOXER';
+  const L1=LANGS[S.lang1];
+  const openers={
+    pressure:[`walks ${bout.name} down from the bell`,'cuts the ring off early','leans on the pace immediately'],
+    counter:['gives ground on purpose','waits, glove high, reading','lets the first exchange come to it'],
+    technical:['claims the centre line','establishes the jab like a metronome','controls range with footwork'],
+  };
+  const reasons={
+    pressure:'gameplan: Pressure — make them work every second',
+    counter:'gameplan: Counter — answer mistakes with interest',
+    technical:'gameplan: Technical — win the long argument',
+  };
+  events.push({t:'sys', who:'BELL', txt:`Round 1 — ${bout.name} (${arch.name}${bout.variant?', '+bout.variant.toLowerCase()+' variant':''}) at ${bout.setting}.`});
+  events.push({t:'you', who:youName, txt:openers[gp.approach||'technical'][Math.floor(rng()*3)], why:reasons[gp.approach||'technical']});
+  for(let r=1;r<=totalRounds;r++){
+    if(r>1)events.push({t:'sys',who:'BELL',txt:`Round ${r}.`, round:r});
+    const exchanges=2+Math.floor(rng()*2);
+    for(let x=0;x<exchanges;x++){
+      let youBias=52+planEdge+focusEdge+momentum*0.35+(policy==='exploit'?10:policy==='recover'?-8:0);
+      if(gp.contingency==='shell'&&you<35)youBias-=6;
+      if(hasProgram('jit'))youBias+=3;
+      if(hasProgram('overclock')&&momentum<-10&&r>=3){youBias+=8;heat+=6}
+      const roll=rng()*100;
+      const youWinExchange=roll<youBias;
+      const dmg=6+Math.floor(rng()*9)+(bout.boss?2:0);
+      if(youWinExchange){
+        them-=dmg;momentum=Math.min(40,momentum+dmg*.8);
+        const why=policy==='exploit'?'corner call: exploiting the read'
+          :gp.priority==='punish'?'priority: punishing the recovery window'
+          :gp.priority==='drain'?'priority: draining their stability'
+          :gp.priority==='break'?'priority: cracking the guard'
+          :'OS temperament: took what was offered';
+        const verbs=['lands a clean counter hook','times the jab beautifully','steps in and rips the body','catches them mid-reset','finds the gap over the guard'];
+        events.push({t:'you',who:youName,txt:verbs[Math.floor(rng()*verbs.length)]+` (−${dmg})`,why,dmg,side:'them',round:r});
+      }else{
+        you-=dmg;momentum=Math.max(-40,momentum-dmg*.8);
+        const tell=arch.tells[Math.floor(rng()*arch.tells.length)];
+        events.push({t:'them',who:bout.name,txt:['answers with a heavy cross','walks through and lands','punishes the exchange'][Math.floor(rng()*3)]+` (−${dmg})`,why:`opponent pattern: ${tell}`,dmg,side:'you',round:r});
+      }
+      if(you<=0||them<=0)break;
+    }
+    if(policyRounds>0){policyRounds--;if(policyRounds===0)policy=null}
+    // guard-swap contingency narration
+    if(gp.contingency==='shell'&&you<35&&!events.some(e=>e.shellNote)){
+      events.push({t:'you',who:youName,txt:'drops into the emergency shell',why:hasProgram('watchdog')?'Watchdog: defensive contingency triggered early (below 35% integrity)':'contingency: Emergency shell — survival first',shellNote:true,round:r});
+    }
+    if(you<=0||them<=0)break;
+    // intervention windows: momentum swings mid-fight
+    if(intervUsed<maxInterv&&r<totalRounds&&(r===Math.ceil(totalRounds/2)||(bout.boss&&r===totalRounds-1))){
+      interventionsAt.push({afterEventIndex:events.length,round:r,used:intervUsed});
+      intervUsed++;
+      events.push({t:'interv',round:r});
+    }
+  }
+  // decision if nobody KO'd
+  let result;
+  if(them<=0&&you>0)result='ko-win';
+  else if(you<=0&&them>0)result='ko-loss';
+  else result=(you-them+momentum*.5+planEdge*.6)>=0?'dec-win':'dec-loss';
+  const won=result.endsWith('win');
+  events.push({t:'sys',who:'BELL',txt:result.startsWith('ko')
+    ?(won?`${bout.name} goes down! The count reaches ten.`:`${youName} is down… the count reaches ten.`)
+    :`Scorecards: ${won?'unanimous decision — '+youName:'split decision — '+bout.name}.`});
+  if(bout.rival&&won)events.push({t:'sys',who:'ARENA',txt:'Dr. Nullpointer’s visor cracks. The simulation stutters. Somewhere, a lease is voided.'});
+  // growth attribution — fixed budget, scaled by difficulty/outcome
+  const budget=(bout.boss?8:5)+(won?2:0);
+  const attribution=[
+    {src:'Approach: '+(GAMEPLAN.approach.find(a=>a.id===gp.approach)?.name||'—'), note:planEdge>=8?'read the matchup well':planEdge<=-6?'ran into their strength':'a fair trade', pts:Math.max(1,Math.round(budget*.4))},
+    {src:'Priority: '+(GAMEPLAN.priority.find(a=>a.id===gp.priority)?.name||'—'), note:'shaped the exchanges you won', pts:Math.max(1,Math.round(budget*.25))},
+    {src:'Contingency: '+(GAMEPLAN.contingency.find(a=>a.id===gp.contingency)?.name||'—'), note:'insurance, cashed or not', pts:Math.max(0,Math.round(budget*.15))},
+  ];
+  return {bout,arch,events,interventionsAt,result,won,youHp:Math.max(0,you),themHp:Math.max(0,them),budget,attribution,totalRounds};
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const NAV=[
+  {id:'gym', label:'Gym', ico:'M6 20 V10 l6 -5 6 5 v10 z'},
+  {id:'roster', label:'Roster', ico:'M12 3 a4 4 0 1 1 0 8 a4 4 0 0 1 0 -8 z M4 21 c0 -5 4 -7 8 -7 s8 2 8 7'},
+  {id:'workshop', label:'Workshop', ico:'M9 3 h6 v4 l3 2 v6 l-3 2 v4 h-6 v-4 l-3 -2 v-6 l3 -2 z'},
+  {id:'strategy', label:'Strategy', ico:'M4 19 L10 12 L14 15 L20 6 M14 6 h6 v6'},
+  {id:'league', label:'League', ico:'M7 4 h10 v4 a5 5 0 0 1 -10 0 z M9 14 h6 v3 h-6 z M7 20 h10'},
+];
+function nav(screen){
+  S.screen=screen;save();render();
+  $('#stage').focus({preventScroll:true});
+  window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});
+}
+function renderNav(){
+  const created=!!S.os;
+  $('#mainnav').innerHTML=NAV.map(n=>`
+    <button class="tab" role="tab" aria-selected="${S.screen===n.id}" data-nav="${n.id}" ${created?'':'disabled'} title="${n.label}">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${n.ico}"/></svg>
+      <span class="txt">${n.label}</span>
+    </button>`).join('');
+}
+document.addEventListener('click',e=>{
+  const nb=e.target.closest('[data-nav]');
+  if(nb&&!nb.disabled){e.preventDefault();nav(nb.dataset.nav)}
+});
+
+/* ============================================================
+   SCREEN RENDERERS
+   ============================================================ */
+const SCREENS={};
+
+/* ---------- 1. ONBOARDING (4 steps) ---------- */
+SCREENS.onboarding=function(){
+  const step=S.onboardStep;
+  const dots=`<div class="step-dots" aria-label="Step ${step+1} of 4">${[0,1,2,3].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('')}</div>`;
+  if(step===0){
+    return `<div class="onboard stack">
+      <section class="plate rivets center">
+        <p class="plate-kicker">Welcome to the gym</p>
+        <h2 class="plate-title">Every great fighter starts as spare parts.</h2>
+        <div class="hero-robot">${robotSVG('rust','go',{size:190,label:'A freshly assembled robot boxer'})}</div>
+        <div class="parchment quill" style="max-width:520px;margin:0 auto">
+          You are the manager. You will build this machine, read its opponents, set the plan —
+          and step into the corner at the two or three moments that decide a fight.
+          The punches? Those are its department.
+        </div>
+        ${dots}
+        <button class="btn big" data-act="ob-next">Build my boxer</button>
+        <p class="tiny faint" style="margin-top:10px">A management sim — you never throw the punches.</p>
+      </section>
+    </div>`;
+  }
+  if(step===1){
+    const picked=[S.lang1,S.lang2].filter(Boolean);
+    return `<div class="onboard stack">
+      <section class="plate rivets">
+        <p class="plate-kicker">Step 1 — Identity</p>
+        <h2 class="plate-title">Choose two languages</h2>
+        <p class="muted small">Languages are the soul, not the stats: a personality, a voice, a signature move, a slight growth lean.</p>
+        <hr class="seam">
+        <div class="lang-grid" role="group" aria-label="Language selection — pick two">
+          ${Object.entries(LANGS).map(([id,l])=>{
+            const sel=picked.includes(id);const slot=id===S.lang1?'CORE':id===S.lang2?'SECOND':'';
+            return `<button class="lang-card" style="--lc:${l.color}" aria-pressed="${sel}" data-act="pick-lang" data-lang="${id}">
+              ${slot?`<span class="badge brass slot-tag">${slot}</span>`:''}
+              <div class="swatch"></div><b>${l.name}</b>
+              <span>${l.temper}</span>
+              <span class="tiny" style="color:${l.color}">◆ ${l.signature.split('—')[0].trim()}</span>
+            </button>`}).join('')}
+        </div>
+        ${dots}
+        <div class="row between">
+          <button class="btn ghost" data-act="ob-back">Back</button>
+          <button class="btn" data-act="ob-next" ${picked.length===2?'':'disabled'}>${picked.length===2?'Next — name the machine':'Pick '+(2-picked.length)+' more'}</button>
+        </div>
+      </section>
+    </div>`;
+  }
+  if(step===2){
+    return `<div class="onboard stack">
+      <section class="plate rivets">
+        <p class="plate-kicker">Step 2 — The nameplate & the brain</p>
+        <h2 class="plate-title">Name it. Then give it an OS.</h2>
+        <div class="hero-robot">${robotSVG(S.lang1,S.lang2,{size:150,label:'Your boxer'})}</div>
+        <label class="sr-only" for="bname">Boxer name</label>
+        <input id="bname" class="name-input" maxlength="20" placeholder="e.g. TIN CANNON" value="${esc(S.name)}" autocomplete="off">
+        <hr class="seam">
+        <p class="muted small" style="margin-bottom:10px">The OS is temperament and capacity — how it thinks, not how hard it hits.</p>
+        <div class="lever-group" role="radiogroup" aria-label="Operating system">
+          ${OSES.map(o=>`<button class="lever" role="radio" aria-checked="${S.os===o.id}" aria-pressed="${S.os===o.id}" data-act="pick-os" data-os="${o.id}">
+            <span class="knob" aria-hidden="true"></span>
+            <span style="flex:1"><b>${o.name} — “${o.motto}”</b>
+            <span>${o.temper} · ${o.capacity} · ${o.bias}</span></span>
+          </button>`).join('')}
+        </div>
+        ${dots}
+        <div class="row between">
+          <button class="btn ghost" data-act="ob-back">Back</button>
+          <button class="btn" data-act="ob-next" ${S.os?'':'disabled'}>Next — the starter draft</button>
+        </div>
+      </section>
+    </div>`;
+  }
+  if(step===3){
+    if(!S.draftChoices.length){const r=mulberry32(Date.now()%100000);const pool=[...PROGRAMS];S.draftChoices=[0,0,0].map(()=>pool.splice(Math.floor(r()*pool.length),1)[0].id);save()}
+    return `<div class="onboard stack">
+      <section class="plate rivets">
+        <p class="plate-kicker">Step 3 — The headline system</p>
+        <h2 class="plate-title">Draft your first program</h2>
+        <p class="muted small">Programs change <em>behaviour</em>, never raw numbers. One of these three. The rest of the bank is earned from bosses.</p>
+        <hr class="seam">
+        <div class="draft-cards" role="group" aria-label="Choose one of three programs">
+          ${S.draftChoices.map(id=>{const p=PROGRAMS.find(x=>x.id===id);const sel=S.programCore===id||S.programUtility===id;
+            return `<button class="program-card" aria-pressed="${sel}" data-act="draft-program" data-prog="${id}">
+              ${chipArt(p.id)}
+              <b>${p.name}</b>
+              <span class="trig">${p.trigger}</span>
+              <span class="fx">${p.effect}</span>
+              <span class="flavor">${p.flavor}</span>
+              <span class="badge ${p.kind==='core'?'brass':'iron'}" style="align-self:flex-start">${p.kind} slot</span>
+            </button>`}).join('')}
+        </div>
+        ${dots}
+        <div class="row between">
+          <button class="btn ghost" data-act="ob-back">Back</button>
+          <button class="btn teal big" data-act="ob-finish" ${ (S.programCore||S.programUtility)?'':'disabled'}>Open the gym doors</button>
+        </div>
+      </section>
+    </div>`;
+  }
+};
+function chipArt(id){
+  const glyphs={profiler:'M7 17 L12 7 L17 17 M9.5 13.5 h5',firewall:'M12 4 l7 3 v5 c0 5 -4 7 -7 8 c-3 -1 -7 -3 -7 -8 v-5 z',jit:'M13 3 L6 14 h5 l-1 7 l8 -12 h-5 z',rollback:'M12 5 a7 7 0 1 1 -6.3 4 M6 4 v5 h5',watchdog:'M6 10 l3 -4 h6 l3 4 v4 a6 3.5 0 0 1 -12 0 z M9.5 12 h.01 M14.5 12 h.01',overclock:'M12 4 a8 8 0 0 1 8 8 h-3 M12 4 a8 8 0 0 0 -8 8 h3 M12 12 l4 -3'};
+  return `<svg class="chip-art" viewBox="0 0 24 24" fill="none" stroke="var(--bb-teal-hi)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="2.5" y="2.5" width="19" height="19" rx="4" stroke="var(--bb-brass-lo)"/>
+    <path d="${glyphs[id]||glyphs.jit}"/></svg>`;
+}
+
+/* ---------- 2. GYM (hub) ---------- */
+SCREENS.gym=function(){
+  const bout=ARC[S.fightIndex];const l1=LANGS[S.lang1],os=OSES.find(o=>o.id===S.os);
+  const record=`${S.wins}–${S.losses}`;
+  const cond=S.condition;
+  const gpSet=S.gameplan.approach&&S.gameplan.priority&&S.gameplan.contingency;
+  return `<div class="stack">
+    <div class="gym-grid">
+      <section class="plate rivets boxer-card" aria-label="Your boxer">
+        <div class="row between">
+          <div>
+            <p class="plate-kicker">Your fighter</p>
+            <h2 class="plate-title">${esc(S.name)}</h2>
+            <p class="tiny muted">${l1.name}/${LANGS[S.lang2].name} · ${os.name} · <span class="mono">${record}</span></p>
+          </div>
+          <div class="center">
+            <div class="integrity-tokens" title="Integrity lives — a loss costs one; system failure ends the generation" aria-label="Integrity lives: ${S.integrity} of 3">
+              ${[1,2,3].map(i=>`<span class="token ${i<=S.integrity?'':'spent'}"></span>`).join('')}
+            </div>
+            <span class="tiny faint">integrity lives</span>
+          </div>
+        </div>
+        <div class="portrait-stage" style="margin-top:12px">
+          <div class="lamp"></div>
+          ${robotSVG(S.lang1,S.lang2,{size:170,label:esc(S.name)})}
+        </div>
+        <div style="margin-top:12px">
+          <div class="meter-row"><span class="lbl">Condition</span>
+            <div class="meter ${cond<35?'crit':cond<65?'warn':''}"><i style="--val:${cond}"></i></div>
+            <span class="num">${cond}%</span></div>
+        </div>
+        <div class="parchment" style="margin-top:10px">
+          <span class="quill">${l1.voice(bout.rival?'The rival talks too much. Let’s answer properly.':'Ready when you are, boss.')}</span>
+        </div>
+      </section>
+      <section class="stack">
+        <div class="next-poster" aria-label="Next bout">
+          <span class="venue">${bout.setting} · bout ${bout.n} of 12 ${bout.boss?'· TITLE CARD':''}</span>
+          <h3>${esc(S.name)}</h3>
+          <div class="vs">versus</div>
+          <h3>${bout.name}</h3>
+          <p class="tiny" style="margin-top:6px">${ARCHETYPES[bout.arch].name} · ${bout.variant} variant</p>
+          <div style="margin-top:12px">
+            <button class="btn garnet big" data-act="to-fight-check">${gpSet?'Step to the ring':'Prepare the gameplan'}</button>
+          </div>
+          ${gpSet?'':'<p class="tiny" style="margin-top:8px;color:var(--bb-ink-soft)">Your corner wants a plan before the walk.</p>'}
+        </div>
+        <section class="plate" aria-label="Gym shortcuts">
+          <p class="plate-kicker">The gym</p>
+          <div class="hub-actions">
+            ${[['strategy','Strategy','scout & gameplan','M4 19 L10 12 L14 15 L20 6 M14 6 h6 v6'],
+               ['workshop','Workshop','programs & slots','M9 3 h6 v4 l3 2 v6 l-3 2 v4 h-6 v-4 l-3 -2 v-6 l3 -2 z'],
+               ['repairs','Repair bay','condition & tune-up','M14 7 a4 4 0 1 0 3 3 L21 14 v4 h-4 l-4 -4 a4 4 0 0 1 -3 -3 z M4 20 l6 -6'],
+               ['league','League','the campaign arc','M7 4 h10 v4 a5 5 0 0 1 -10 0 z M9 14 h6 v3 h-6 z M7 20 h10'],
+               ['roster','Roster','lineage hall','M12 3 a4 4 0 1 1 0 8 a4 4 0 0 1 0 -8 z M4 21 c0 -5 4 -7 8 -7 s8 2 8 7']]
+              .map(([id,b,s,d])=>`<button class="hub-tile" data-nav="${id}">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="var(--bb-brass-hi)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>
+                <b>${b}</b><span>${s}</span></button>`).join('')}
+          </div>
+        </section>
+      </section>
+    </div>
+    <section class="plate" aria-label="Recent history">
+      <p class="plate-kicker">Ledger</p>
+      ${S.log.length?S.log.slice(-4).reverse().map(e=>`<div class="ticket" style="margin-bottom:8px">
+          <span class="badge ${e.won?'moss':'garnet'}">${e.won?'WIN':'LOSS'}</span>
+          <div style="flex:1"><b class="small">${e.opp}</b><span class="tiny faint"> · ${e.how} · ${e.venue}</span></div>
+          <span class="tiny mono muted">bout ${e.n}</span>
+        </div>`).join(''):'<p class="small muted">No bouts yet. The ledger smells of fresh ink and machine oil.</p>'}
+    </section>
+  </div>`;
+};
+/* ---------- 3. ROSTER / LINEAGE ---------- */
+SCREENS.roster=function(){
+  const gens=[...S.lineage];
+  const current={name:S.name,l1:S.lang1,l2:S.lang2,record:`${S.wins}–${S.losses}`,era:'ACTIVE',current:true,heirloom:null};
+  return `<div class="stack">
+    <section class="plate rivets">
+      <p class="plate-kicker">Roster & lineage</p>
+      <h2 class="plate-title">The Hall of Frames</h2>
+      <p class="muted small">One boxer fights at a time. When a generation ends, <b>one heirloom program</b> survives into the next — nothing else does.</p>
+      <hr class="seam">
+      <div class="lineage-hall">
+        ${[...gens,current].map((g,i)=>`
+          <div class="frame ${g.current?'sparks':''}">
+            ${robotSVG(g.l1,g.l2,{size:110,label:esc(g.name),ko:!g.current&&g.fell})}
+            <div class="plaque">${esc(g.name)}</div>
+            <div class="era">Gen ${i+1} · ${g.current?`active · ${g.record}`:`${g.record} · ${g.era}`}</div>
+            ${g.heirloom?`<div class="tiny" style="color:var(--bb-teal-hi);margin-top:4px">⬡ heirloom: ${PROGRAMS.find(p=>p.id===g.heirloom)?.name||g.heirloom}</div>`:''}
+            ${g.current?`<div class="tiny faint" style="margin-top:4px">integrity ${S.integrity}/3</div>`:''}
+          </div>`).join('')}
+        <div class="frame" style="opacity:.5;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--bb-text-faint)" stroke-width="1.2"><rect x="4" y="3" width="16" height="18" rx="2" stroke-dasharray="3 3"/><path d="M12 9 v6 M9 12 h6"/></svg>
+          <div class="tiny faint" style="margin-top:8px">the next generation<br>waits for its parts</div>
+        </div>
+      </div>
+    </section>
+    <section class="plate">
+      <p class="plate-kicker">House rules</p>
+      <div class="grid cols-3">
+        <div class="parchment small"><b>Integrity lives.</b> An ordinary loss costs a token. Running out — or a terminal system failure — ends the generation.</div>
+        <div class="parchment small"><b>The heirloom.</b> Before a generation ends you choose one program to pass down. It arrives already installed.</div>
+        <div class="parchment small"><b>No grinding ghosts.</b> Lineage is a story, not a stat stack — new machines earn their own record.</div>
+      </div>
+    </section>
+  </div>`;
+};
+
+/* ---------- 4. WORKSHOP (programs) ---------- */
+SCREENS.workshop=function(){
+  const bank=PROGRAMS.filter(p=>!([S.programCore,S.programUtility].includes(p.id))&&(S.bank.includes(p.id)||S.draftChoices.includes(p.id)));
+  const slotCard=(pid,slot)=>{
+    if(!pid)return `<p class="small faint center">empty — install from the bank below</p>`;
+    const p=PROGRAMS.find(x=>x.id===pid);
+    return `<div class="program-card" style="cursor:default">
+      ${chipArt(p.id)}<b>${p.name}</b><span class="trig">${p.trigger}</span>
+      <span class="fx">${p.effect}</span>
+      <button class="btn small ghost" data-act="uninstall" data-slot="${slot}" style="align-self:flex-start;margin-top:6px">Remove</button>
+    </div>`;
+  };
+  return `<div class="stack">
+    <section class="plate rivets">
+      <p class="plate-kicker">Workshop</p>
+      <h2 class="plate-title">Program bay</h2>
+      <p class="muted small">Two slots. The <b>core</b> slot is who your boxer is; the <b>utility</b> slot is this month's toolkit. Programs are behaviour — triggers and rule-changes — never “+5 power”.</p>
+      <hr class="seam">
+      <div class="slot-bay">
+        <div class="slot ${S.programCore?'filled':''}" id="slot-core"><span class="slot-label">◆ identity core</span>${slotCard(S.programCore,'core')}</div>
+        <div class="slot ${S.programUtility?'filled':''}" id="slot-utility"><span class="slot-label">⬡ utility</span>${slotCard(S.programUtility,'utility')}</div>
+      </div>
+      <hr class="seam">
+      <p class="plate-kicker">Program bank <span class="faint">(earned from boss drafts)</span></p>
+      ${bank.length?`<div class="bank-rail">
+        ${bank.map(p=>`<button class="program-card" data-act="install" data-prog="${p.id}" aria-label="Install ${p.name}">
+          ${chipArt(p.id)}<b>${p.name}</b><span class="trig">${p.trigger}</span>
+          <span class="fx">${p.effect}</span><span class="flavor">${p.flavor}</span>
+          <span class="badge ${p.kind==='core'?'brass':'iron'}" style="align-self:flex-start">${p.kind} slot</span>
+        </button>`).join('')}</div>`
+      :'<p class="small muted">The bank is empty. Beat a boss; take their toys.</p>'}
+    </section>
+    <section class="plate">
+      <p class="plate-kicker">How installs behave</p>
+      <div class="grid cols-3">
+        <div class="parchment small"><b>Event-driven.</b> Programs subscribe to moments — <span class="mono tiny">onGuard</span>, <span class="mono tiny">onCrash</span>, <span class="mono tiny">onLowIntegrity</span> — and rewrite what happens next.</div>
+        <div class="parchment small"><b>No hard counters.</b> Nothing here reads “+30% vs Bruisers”. Reads and plans beat rock-paper-scissors.</div>
+        <div class="parchment small"><b>Swap between fights.</b> The utility slot is free to change in the gym; the core is who they are.</div>
+      </div>
+    </section>
+  </div>`;
+};
+
+/* ---------- 5. TRAINING & STRATEGY ---------- */
+SCREENS.strategy=function(){
+  const bout=ARC[S.fightIndex];const arch=ARCHETYPES[bout.arch];
+  const scoutLevel=S.scouted.includes(bout.n)?(S.programCore==='profiler'||S.programUtility==='profiler'?3:2):1;
+  const gp=S.gameplan;
+  const focus=[['power','Heavy bag','hands like anvils'],['accuracy','Mirror drills','put it where it hurts'],['durability','Plate work','take one to give two'],['tempo','Skip-rope circuits','never stop moving']];
+  return `<div class="stack">
+    <section class="plate rivets">
+      <div class="row between">
+        <div>
+          <p class="plate-kicker">Fight week</p>
+          <h2 class="plate-title">Scout & gameplan — ${bout.name}</h2>
+          <p class="tiny muted">${bout.setting} · bout ${bout.n}/12 ${bout.boss?'· <b style="color:var(--bb-garnet-hi)">title card</b>':''}</p>
+        </div>
+        <div class="center">${enemySVG(bout.arch,{size:110,label:bout.name})}</div>
+      </div>
+    </section>
+    <div class="strategy-grid">
+      <section class="plate" aria-label="Scouting report">
+        <p class="plate-kicker">Scouting report</p>
+        <div class="parchment">
+          <p class="quill" style="margin-bottom:8px">Ringside notes — what the film shows, not what the poster claims:</p>
+          ${arch.tells.map((t,i)=>`<div class="scout-note ${i<scoutLevel?'':'locked'}">
+            <span class="pin" aria-hidden="true"></span>
+            <span class="small">${i<scoutLevel?t:'…more film needed (Profiler reveals a third tell)'}</span>
+          </div>`).join('')}
+        </div>
+        <div class="row" style="margin-top:10px">
+          ${S.scouted.includes(bout.n)
+            ?'<span class="badge moss">film studied</span>'
+            :`<button class="btn ghost small" data-act="scout">Study the film <span class="mono">(free)</span></button>`}
+          <span class="tiny faint">Evidence is behaviour — never a bare label with the counter attached.</span>
+        </div>
+        <hr class="seam">
+        <p class="plate-kicker">This week's training focus</p>
+        <div class="focus-grid" role="radiogroup" aria-label="Training focus">
+          ${focus.map(([id,name,fl])=>`<button class="lever" style="flex-direction:column;align-items:flex-start" role="radio" aria-checked="${S.trainingFocus===id}" aria-pressed="${S.trainingFocus===id}" data-act="focus" data-focus="${id}">
+            <b class="small">${name}</b><span class="tiny">${fl}</span>
+          </button>`).join('')}
+        </div>
+        <p class="tiny faint" style="margin-top:8px">One focus per fight week. Growth is attributed after the bout — no grinding.</p>
+      </section>
+      <section class="plate" aria-label="Gameplan">
+        <p class="plate-kicker">The gameplan <span class="faint">— three calls, committed before the walk</span></p>
+        ${['approach','priority','contingency'].map(key=>`
+          <div class="gp-section">
+            <h4>${key}</h4>
+            <div class="lever-group" role="radiogroup" aria-label="${key}">
+              ${GAMEPLAN[key].map(o=>`<button class="lever" role="radio" aria-checked="${gp[key]===o.id}" aria-pressed="${gp[key]===o.id}" data-act="gp" data-key="${key}" data-val="${o.id}">
+                <span class="knob" aria-hidden="true"></span>
+                <span style="flex:1"><b>${o.name}</b><span>${o.tip}</span></span>
+              </button>`).join('')}
+            </div>
+          </div>`).join('')}
+        <hr class="seam">
+        <button class="btn garnet big" style="width:100%" data-act="to-fight" ${gp.approach&&gp.priority&&gp.contingency?'':'disabled'}>
+          ${gp.approach&&gp.priority&&gp.contingency?'Commit the plan — ring walk':'Choose all three calls first'}
+        </button>
+        <p class="tiny faint center" style="margin-top:8px">In the ring you get ${bout.boss?'two corner calls':'one corner call'} — everything else is trust.</p>
+      </section>
+    </div>
+  </div>`;
+};
+/* ---------- 6. FIGHT (theatrical presentation) ---------- */
+let FIGHT=null; // volatile playback state
+SCREENS.fight=function(){
+  const bout=ARC[S.fightIndex];
+  const f=FIGHT;
+  const backdrops={
+    'The Boiler Club':'radial-gradient(ellipse at 50% 20%, rgba(255,150,60,.16), transparent 55%), linear-gradient(180deg,#26160c,#1a0f08)',
+    'Gearworks Hall':'radial-gradient(ellipse at 50% 15%, rgba(180,200,255,.10), transparent 50%), linear-gradient(180deg,#161a24,#100f14)',
+    'The Crystal Foundry':'radial-gradient(ellipse at 50% 15%, rgba(140,240,220,.12), transparent 55%), linear-gradient(180deg,#0f1f1e,#0a1413)',
+    'The Signal Spire':'radial-gradient(ellipse at 50% 10%, rgba(220,120,160,.13), transparent 55%), linear-gradient(180deg,#1e0f1a,#120912)',
+  };
+  return `<div class="stack">
+    <section class="arena" aria-label="The fight">
+      <div class="backdrop" style="background:${backdrops[bout.setting]||backdrops['The Boiler Club']}">
+        ${arenaOrnament(bout.setting)}
+        <div class="ropes"></div><div class="ring-floor"></div>
+      </div>
+      <div class="fight-hud">
+        <div>
+          <div class="tiny" style="color:var(--bb-teal-hi);font-weight:700">${esc(S.name)}</div>
+          <div class="meter ${f&&f.you<35?'crit':f&&f.you<65?'warn':''}" aria-label="Your integrity"><i id="hp-you" style="--val:${f?f.you:100}"></i></div>
+        </div>
+        <div class="round-bell">
+          <span class="bell-num" id="round-num">${f?f.round:1}</span>
+          <span class="tiny faint">ROUND</span>
+        </div>
+        <div>
+          <div class="tiny" style="color:var(--bb-garnet-hi);font-weight:700;text-align:right">${bout.name}</div>
+          <div class="meter" aria-label="Opponent integrity"><i id="hp-them" style="--val:${f?f.them:100}"></i></div>
+        </div>
+      </div>
+      <div class="fighters">
+        <div class="fighter-zone">
+          <div id="bot-you">${robotSVG(S.lang1,S.lang2,{size:150,label:esc(S.name),pose:'guard'})}</div>
+          <span class="nameplate">${esc(S.name)}</span>
+        </div>
+        <div class="momentum" style="position:absolute;left:12%;right:12%;top:12px" aria-label="Momentum">
+          <span class="tiny" style="color:var(--bb-teal-hi)">you</span>
+          <div class="track"><i class="you" id="mo-you"></i><i class="them" id="mo-them"></i></div>
+          <span class="tiny" style="color:var(--bb-garnet-hi)">them</span>
+        </div>
+        <div class="fighter-zone">
+          <div id="bot-them">${enemySVG(bout.arch,{size:150,label:bout.name})}</div>
+          <span class="nameplate">${bout.name}</span>
+        </div>
+      </div>
+      <div id="intervene-root"></div>
+    </section>
+    <div class="commentary" id="calls" role="log" aria-live="polite" aria-label="Fight commentary"></div>
+    <div class="fight-controls">
+      <button class="btn ghost small" data-act="speed" id="speed-btn" aria-pressed="false">Speed ×2</button>
+      <button class="btn ghost small" data-act="skip">Skip to next decision</button>
+      <span class="token-chip" id="token-chip" title="Corner calls remaining">
+        <svg width="13" height="13" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--bb-amber)"/></svg>
+        <span id="token-count">${f?f.tokens:(bout.boss?2:1)}</span> corner call${bout.boss?'s':''}
+      </span>
+    </div>
+  </div>`;
+};
+function arenaOrnament(setting){
+  if(setting==='Gearworks Hall')return `<svg viewBox="0 0 40 40" style="position:absolute;top:8%;left:6%;width:64px;opacity:.25" class="spin-slow"><g fill="none" stroke="#8fa3c9" stroke-width="1.6"><circle cx="20" cy="20" r="9"/><path d="M20 6v5M20 29v5M6 20h5M29 20h5M10 10l3.4 3.4M26.6 26.6l3.4 3.4M30 10l-3.4 3.4M13.4 26.6 10 30"/></g></svg>`;
+  if(setting==='The Crystal Foundry')return `<svg viewBox="0 0 60 60" style="position:absolute;top:6%;right:8%;width:70px;opacity:.3"><path d="M30 5 L45 28 L30 55 L15 28 Z" fill="none" stroke="#7fe0cf" stroke-width="1.4"/><path d="M30 5 L30 55 M15 28 h30" stroke="#7fe0cf" stroke-width="."/></svg>`;
+  if(setting==='The Signal Spire')return `<svg viewBox="0 0 60 60" style="position:absolute;top:5%;left:8%;width:64px;opacity:.3"><path d="M30 52 L30 20 M20 30 q10 -14 20 0 M14 36 q16 -24 32 0" fill="none" stroke="#e08ab0" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+  return `<svg viewBox="0 0 60 30" style="position:absolute;top:10%;right:7%;width:80px;opacity:.28"><g fill="none" stroke="#ffb87a" stroke-width="1.5"><path d="M8 22 q6 -14 14 0 q6 -12 14 0 q6 -14 16 0"/><circle cx="15" cy="8" r="2.4"/><circle cx="30" cy="6" r="2.4"/><circle cx="45" cy="8" r="2.4"/></g></svg>`;
+}
+function startFight(){
+  const sim=simulateFight(1000+S.fightIndex*7919+S.wins*131);
+  FIGHT={sim,idx:0,you:100,them:100,mo:0,round:1,speed:1,timer:null,paused:false,done:false,
+    tokens:sim.bout.boss?2:1,intervChoices:[]};
+  nav('fight');
+  setTimeout(stepFight, 900);
+}
+function stepFight(){
+  const f=FIGHT;if(!f||f.paused||f.done)return;
+  const ev=f.sim.events[f.idx];
+  if(!ev){finishFight();return}
+  f.idx++;
+  if(ev.t==='interv'){
+    if(f.tokens>0){showIntervention(ev);return}
+    // no tokens left — corner stays quiet
+    addCall({t:'sys',who:'CORNER',txt:'The corner watches. No calls left — trust the machine.'});
+    scheduleNext(700);return;
+  }
+  if(ev.round)updateRound(ev.round);
+  addCall(ev);
+  if(ev.dmg){
+    if(ev.side==='them'){f.them=Math.max(0,f.them-ev.dmg);punch('you')}
+    else{f.you=Math.max(0,f.you-ev.dmg);punch('them')}
+    f.mo=Math.max(-40,Math.min(40,f.mo+(ev.side==='them'?ev.dmg:-ev.dmg)));
+    updateMeters();
+  }
+  scheduleNext(ev.t==='sys'?950:820);
+}
+function scheduleNext(base){
+  const f=FIGHT;if(!f)return;
+  clearTimeout(f.timer);
+  f.timer=setTimeout(stepFight, REDUCED?40:Math.round(base/f.speed));
+}
+function updateRound(r){FIGHT.round=r;const el=$('#round-num');if(el){el.textContent=r;
+  if(!REDUCED){el.animate([{transform:'scale(1.6)',color:'#ffd98a'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.28,1.4,.42,1)'})}}}
+function updateMeters(){
+  const f=FIGHT;
+  const hy=$('#hp-you'),ht=$('#hp-them');
+  if(hy){hy.style.setProperty('--val',f.you);hy.parentElement.classList.toggle('crit',f.you<35);hy.parentElement.classList.toggle('warn',f.you>=35&&f.you<65)}
+  if(ht)ht.style.setProperty('--val',f.them);
+  const my=$('#mo-you'),mt=$('#mo-them');
+  if(my&&mt){
+    if(f.mo>=0){my.style.width=(f.mo*1.25)+'%';mt.style.width='0'}
+    else{mt.style.width=(-f.mo*1.25)+'%';mt.style.left=(50+f.mo*1.25)+'%';my.style.width='0'}
+    if(f.mo>=0){my.style.left='50%'}
+  }
+}
+function punch(side){
+  if(REDUCED)return;
+  const atk=$(side==='you'?'#bot-you':'#bot-them'),def=$(side==='you'?'#bot-them':'#bot-you');
+  if(atk){atk.firstElementChild.classList.remove('attack-r','attack-l');void atk.offsetWidth;
+    atk.firstElementChild.classList.add(side==='you'?'attack-r':'attack-l')}
+  if(def){def.firstElementChild.classList.remove('hit');void def.offsetWidth;def.firstElementChild.classList.add('hit');
+    const star=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    star.setAttribute('viewBox','0 0 40 40');star.classList.add('impact-star');
+    star.style.cssText=`width:44px;top:${30+Math.random()*25}%;${side==='you'?'right:16%':'left:16%'}`;
+    star.innerHTML='<path d="M20 2 L24 14 L37 12 L27 20 L34 32 L21 26 L12 37 L14 23 L3 18 L16 16 Z" fill="var(--bb-amber)" stroke="var(--bb-brass-lo)" stroke-width="1.5"/>';
+    def.parentElement.appendChild(star);setTimeout(()=>star.remove(),520)}
+}
+function addCall(ev){
+  const wrap=$('#calls');if(!wrap)return;
+  const div=document.createElement('div');
+  div.className='call '+(ev.t==='you'?'you':ev.t==='them'?'them':'sys');
+  div.innerHTML=`<span class="who">${esc(ev.who)}</span><span>${esc(ev.txt)}${ev.why?`<span class="why">— ${esc(ev.why)}</span>`:''}</span>`;
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+function showIntervention(){
+  const f=FIGHT;f.paused=true;
+  const root=$('#intervene-root');
+  root.innerHTML=`<div class="intervene-veil">
+    <div class="plate rivets corner-card" role="dialog" aria-modal="true" aria-label="Corner decision">
+      <p class="plate-kicker">The bell — your corner leans in</p>
+      <h3 class="plate-title" style="font-size:var(--fs-sub)">${f.mo>=0?'You have them wobbling. What’s the call?':'You’re losing the rhythm. What’s the call?'}</h3>
+      <p class="tiny muted">A call shifts policy for the next rounds — it is never a single scripted punch.</p>
+      <div class="options">
+        ${INTERVENTIONS.map(o=>`<button class="lever" data-act="intervene" data-choice="${o.id}">
+          <span class="knob"></span>
+          <span style="flex:1"><b>${o.name}${o.id==='trust'?' <span class="tiny" style="color:var(--bb-amber)">(keeps the token)</span>':''}</b>
+          <span>${o.tip}</span></span>
+        </button>`).join('')}
+      </div>
+    </div>
+  </div>`;
+  const first=root.querySelector('.lever');if(first)first.focus();
+}
+function applyIntervention(choice){
+  const f=FIGHT;
+  $('#intervene-root').innerHTML='';
+  f.paused=false;
+  if(choice!=='trust'){f.tokens--;const tc=$('#token-count');if(tc)tc.textContent=f.tokens}
+  f.intervChoices.push(choice);
+  const lines={
+    exploit:{txt:'Corner call: “Exploit the opening — commit to the read.”',why:'policy shift: aggression up for the coming rounds'},
+    recover:{txt:'Corner call: “Recover stability — give a round, buy the fight back.”',why:'policy shift: defence and footing first'},
+    trust:{txt:'The corner nods. No instruction. The machine fights its own fight.',why:'trust — the token stays in your pocket'},
+  };
+  addCall({t:'sys',who:'CORNER',txt:lines[choice].txt,why:lines[choice].why});
+  // reflect into sim outcomes lightly: exploit boosts, recover heals a little
+  if(choice==='exploit'){f.mo=Math.min(40,f.mo+8)}
+  if(choice==='recover'){f.you=Math.min(100,f.you+7);updateMeters();}
+  scheduleNext(900);
+}
+function finishFight(){
+  const f=FIGHT;if(f.done)return;f.done=true;
+  const sim=f.sim;const won=sim.won;
+  // integrity + record + log
+  if(won)S.wins++;else{S.losses++;S.integrity=Math.max(0,S.integrity-1)}
+  S.condition=Math.max(12,S.condition-(won?14:26));
+  S.scrap+=won?(sim.bout.boss?70:40):15;
+  S.log.push({n:sim.bout.n,opp:sim.bout.name,venue:sim.bout.setting,won,how:sim.result.startsWith('ko')?(won?'KO':'KO’d'):(won?'decision':'lost decision')});
+  S.lastFight={won,result:sim.result,bout:sim.bout.n,attribution:sim.attribution,budget:sim.budget,
+    interv:f.intervChoices,youHp:f.you,themHp:f.them,boss:sim.bout.boss,rival:!!sim.bout.rival};
+  // KO fall animation then debrief
+  const loserEl=$(won?'#bot-them':'#bot-you');
+  if(loserEl&&!REDUCED){loserEl.firstElementChild.classList.add('ko-anim')}
+  if(sim.bout.boss&&won&&!S.bank.length){S.bank=PROGRAMS.filter(p=>![S.programCore,S.programUtility].includes(p.id)).slice(0,2).map(p=>p.id)}
+  else if(sim.bout.boss&&won){const extra=PROGRAMS.find(p=>![...S.bank,S.programCore,S.programUtility].includes(p.id));if(extra)S.bank.push(extra.id)}
+  if(won&&S.fightIndex<ARC.length-1)S.fightIndex++;
+  else if(won&&S.fightIndex===ARC.length-1)S.arcDone=true;
+  save();purse();
+  setTimeout(()=>nav('debrief'), REDUCED?200:1400);
+}
+
+/* ---------- 7. DEBRIEF (post-fight analysis) ---------- */
+SCREENS.debrief=function(){
+  const lf=S.lastFight;if(!lf)return SCREENS.gym();
+  const bout=ARC.find(b=>b.n===lf.bout);
+  const spent=lf.interv.filter(c=>c!=='trust').length;
+  const growthTotal=lf.attribution.reduce((t,a)=>t+a.pts,0);
+  return `<div class="stack">
+    <section class="plate rivets verdict-poster ${lf.won?'win':'loss'}">
+      <p class="plate-kicker">${bout.setting} · bout ${bout.n}</p>
+      <div class="verdict">${lf.won?(lf.result==='ko-win'?'Knockout!':'Victory on the cards'):(lf.result==='ko-loss'?'Knocked out':'Lost on the cards')}</div>
+      <p class="muted">${esc(S.name)} ${lf.won?'defeats':'falls to'} ${bout.name}</p>
+      <div class="row" style="justify-content:center;margin-top:14px">
+        <span class="badge ${lf.won?'moss':'garnet'}">${lf.won?'W':'L'} · record ${S.wins}–${S.losses}</span>
+        ${!lf.won?`<span class="badge iron">integrity −1 → ${S.integrity} left</span>`:''}
+        ${lf.boss&&lf.won?'<span class="badge brass">boss draft unlocked</span>':''}
+      </div>
+      ${lf.rival&&lf.won?`<div class="parchment quill" style="max-width:480px;margin:16px auto 0">The Signal Spire falls silent. The gauntlet is yours — this generation's story is told. The workshop lights stay on.</div>`:''}
+    </section>
+    <div class="grid cols-2">
+      <section class="plate" aria-label="Growth attribution">
+        <p class="plate-kicker">Growth — a fixed budget, attributed to your decisions</p>
+        <h3 class="plate-title" style="font-size:var(--fs-sub)">+${growthTotal} development points</h3>
+        ${lf.attribution.map(a=>`
+          <div class="attrib-row">
+            <div class="src">${a.src}<small>${a.note}</small></div>
+            <div class="growth-bar"><i data-w="${Math.min(100,a.pts*18)}"></i></div>
+            <span class="gain">+${a.pts}</span>
+          </div>`).join('')}
+        ${spent?`<div class="attrib-row"><div class="src">Corner calls<small>${lf.interv.filter(c=>c!=='trust').join(', ')||'—'}</small></div><div class="growth-bar"><i data-w="30"></i></div><span class="gain">+1</span></div>`:''}
+        <p class="tiny faint" style="margin-top:10px">Growth credits the plan you set and the calls you made — never autopilot spam. Caps and diminishing returns apply.</p>
+      </section>
+      <section class="plate" aria-label="What the corner saw">
+        <p class="plate-kicker">What the corner saw</p>
+        <div class="parchment">
+          <p class="quill" style="margin-bottom:6px">Coach’s notebook:</p>
+          <div class="scout-note"><span class="pin"></span><span class="small">${lf.won?'The '+(S.gameplan.approach||'technical')+' approach aged well — keep it against this style.':'The '+(S.gameplan.approach||'technical')+' approach fed their strength. Watch the film again.'}</span></div>
+          <div class="scout-note"><span class="pin"></span><span class="small">${(t=>t.charAt(0).toUpperCase()+t.slice(1))(ARCHETYPES[bout.arch].tells[0])} — ${lf.won?'and we cashed it.':'we saw it, we didn’t cash it.'}</span></div>
+          <div class="scout-note"><span class="pin"></span><span class="small">${lf.interv.includes('trust')?'You trusted the machine at the bell. It noticed.':spent?'The corner call turned rounds — tokens are fight-changers.':'No corner calls made it to the ring.'}</span></div>
+        </div>
+        <hr class="seam">
+        <div class="row">
+          <button class="btn teal" data-act="to-repairs">Repair bay</button>
+          <button class="btn ghost" data-nav="strategy" ${S.arcDone?'disabled':''}>Next fight week</button>
+          <button class="btn ghost" data-nav="gym">Back to the gym</button>
+        </div>
+        ${S.integrity===0?`<div class="parchment small" style="margin-top:12px;border:1px solid var(--bb-garnet)"><b>Out of integrity lives.</b> This generation ends here — choose an heirloom program in the Roster to begin the next.</div>`:''}
+      </section>
+    </div>
+  </div>`;
+};
+
+/* ---------- 8. REPAIRS ---------- */
+SCREENS.repairs=function(){
+  const cond=S.condition;
+  const canTune=S.scrap>=30, canPolish=S.scrap>=15;
+  return `<div class="stack">
+    <section class="plate rivets">
+      <p class="plate-kicker">Repair bay</p>
+      <h2 class="plate-title">Between fights, machines heal here</h2>
+      <div class="bay-grid" style="margin-top:8px">
+        <div class="portrait-stage sparks" id="repair-stage">
+          <div class="lamp"></div>
+          ${robotSVG(S.lang1,S.lang2,{size:160,label:esc(S.name)})}
+        </div>
+        <div>
+          <div class="meter-row"><span class="lbl">Condition</span>
+            <div class="meter ${cond<35?'crit':cond<65?'warn':''}"><i style="--val:${cond}"></i></div>
+            <span class="num">${cond}%</span></div>
+          <div class="meter-row"><span class="lbl">Integrity</span>
+            <div class="meter"><i style="--val:${S.integrity/3*100}"></i></div>
+            <span class="num">${S.integrity}/3</span></div>
+          <hr class="seam">
+          <div class="repair-row">
+            <div class="desc"><b>Standard service</b><span>restore condition to 100% — the crew’s time is included in the purse</span></div>
+            <button class="btn teal small" data-act="repair-basic" ${cond>=100?'disabled':''}>${cond>=100?'Pristine':'Service (free)'}</button>
+          </div>
+          <div class="repair-row">
+            <div class="desc"><b>Deep tune</b><span>next fight starts with sharper reads (one bout) · <span class="mono">30 scrap</span></span></div>
+            <button class="btn small" data-act="repair-tune" ${canTune?'':'disabled'}>Tune</button>
+          </div>
+          <div class="repair-row">
+            <div class="desc"><b>Enamel polish</b><span>purely cosmetic. The machine stands taller anyway · <span class="mono">15 scrap</span></span></div>
+            <button class="btn ghost small" data-act="repair-polish" ${canPolish?'':'disabled'}>Polish</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="plate">
+      <p class="plate-kicker">House philosophy</p>
+      <div class="grid cols-2">
+        <div class="parchment small"><b>Repairs are logistics, not grind.</b> Nothing here buys victories — it buys readiness. Winning is done in the strategy room.</div>
+        <div class="parchment small"><b>Scrap</b> comes from bouts (win or lose). Spend it on tune-ups and, one day, arena flair.</div>
+      </div>
+    </section>
+  </div>`;
+};
+
+/* ---------- 9. LEAGUE (campaign arc) ---------- */
+SCREENS.league=function(){
+  const venues=[...new Set(ARC.map(b=>b.setting))];
+  const rivalIdx=Math.min(2,Math.floor(S.fightIndex/4));
+  return `<div class="stack">
+    <section class="plate rivets">
+      <p class="plate-kicker">The campaign</p>
+      <h2 class="plate-title">One arc. Twelve bouts. Four houses.</h2>
+      <p class="muted small">A gauntlet with a spine — finite, replayable, and haunted by a rival who owns every deed in town.</p>
+    </section>
+    <section class="rival-transmission" aria-label="Rival transmission">
+      <div class="visor"><i></i></div>
+      <div>
+        <p class="tiny" style="letter-spacing:.18em;color:var(--bb-garnet-hi);text-transform:uppercase">Incoming transmission — Dr. Nullpointer</p>
+        <p class="quill" style="font-family:var(--font-display);font-style:italic;margin-top:4px">“${RIVAL_LINES[rivalIdx]}”</p>
+        <p class="tiny faint" style="margin-top:4px">He appears by hologram and lieutenant until the Spire. He is only fought when both endings can be honoured.</p>
+      </div>
+    </section>
+    <div class="campaign-path">
+      ${venues.map(v=>`
+        <div class="venue-block">
+          <div class="venue-name">${v}</div>
+          <div class="bout-row">
+            ${ARC.filter(b=>b.setting===v).map(b=>{
+              const done=b.n-1<S.fightIndex||S.arcDone&&b.n===12;
+              const next=!S.arcDone&&b.n-1===S.fightIndex;
+              const logEntry=S.log.filter(l=>l.n===b.n).slice(-1)[0];
+              return `<div class="bout ${done?'done':next?'next':'locked'} ${b.boss?'boss':''}">
+                <span class="b-num">${b.n}</span>
+                ${b.boss?`<span class="badge ${b.rival?'garnet':'royal'}" style="position:absolute;top:-9px;right:8px">${b.rival?'RIVAL':'BOSS'}</span>`:''}
+                <b>${b.name}</b>
+                <span class="tiny muted">${ARCHETYPES[b.arch].name} · ${b.variant}</span><br>
+                ${done&&logEntry?`<span class="res" style="color:${logEntry.won?'var(--bb-win)':'var(--bb-loss)'}">${logEntry.won?'won':'lost'} · ${logEntry.how}</span>`
+                  :next?`<button class="btn small garnet" data-nav="strategy" style="margin-top:6px">Fight week</button>`
+                  :`<span class="tiny faint">sealed</span>`}
+              </div>`}).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+    ${S.arcDone?`<section class="plate center"><h3 class="plate-title">Arc complete.</h3><p class="muted small">Season Zero ends here in the prototype. In the full game: the next generation begins with your heirloom program.</p><button class="btn big" data-act="new-gen" style="margin-top:10px">Begin the next generation</button></section>`:''}
+  </div>`;
+};
+/* ============================================================
+   INTERACTIONS (event delegation) + BOOT
+   ============================================================ */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  const act=el.dataset.act;
+  switch(act){
+    case 'ob-next':{
+      if(S.onboardStep===2){const n=$('#bname');if(n)S.name=n.value.trim().toUpperCase().slice(0,20)||'TIN CANNON'}
+      S.onboardStep=Math.min(3,S.onboardStep+1);save();render();break}
+    case 'ob-back':{S.onboardStep=Math.max(0,S.onboardStep-1);save();render();break}
+    case 'pick-lang':{
+      const id=el.dataset.lang;
+      if(S.lang1===id){S.lang1=S.lang2;S.lang2=null}
+      else if(S.lang2===id){S.lang2=null}
+      else if(!S.lang1)S.lang1=id;
+      else if(!S.lang2&&id!==S.lang1)S.lang2=id;
+      else{S.lang2=id}
+      save();render();break}
+    case 'pick-os':{const n=$('#bname');if(n)S.name=n.value.trim().toUpperCase().slice(0,20);S.os=el.dataset.os;save();render();break}
+    case 'draft-program':{
+      const id=el.dataset.prog;const p=PROGRAMS.find(x=>x.id===id);
+      S.programCore=null;S.programUtility=null;
+      if(p.kind==='core')S.programCore=id;else S.programUtility=id;
+      save();render();break}
+    case 'ob-finish':{
+      if(!S.name)S.name='TIN CANNON';
+      S.screen='gym';S.onboardStep=0;save();renderNav();render();
+      toast(`${S.name} is on the books. Welcome to the gym, manager.`);break}
+    case 'scout':{S.scouted.push(ARC[S.fightIndex].n);save();render();toast('Film studied — two tells confirmed.');break}
+    case 'focus':{S.trainingFocus=el.dataset.focus;save();render();break}
+    case 'gp':{S.gameplan[el.dataset.key]=el.dataset.val;save();render();break}
+    case 'to-fight-check':{
+      const gp=S.gameplan;
+      if(gp.approach&&gp.priority&&gp.contingency)startFight();
+      else nav('strategy');break}
+    case 'to-fight':{startFight();break}
+    case 'speed':{FIGHT.speed=FIGHT.speed===1?2:1;el.textContent=FIGHT.speed===2?'Speed ×1':'Speed ×2';
+      el.setAttribute('aria-pressed',FIGHT.speed===2);break}
+    case 'skip':{ // fast-forward to next intervention or end
+      if(!FIGHT||FIGHT.done)break;clearTimeout(FIGHT.timer);
+      let guard=0;
+      while(!FIGHT.paused&&!FIGHT.done&&guard<200){
+        const ev=FIGHT.sim.events[FIGHT.idx];
+        if(!ev){finishFight();break}
+        FIGHT.idx++;
+        if(ev.t==='interv'){if(FIGHT.tokens>0){showIntervention(ev)}else{addCall({t:'sys',who:'CORNER',txt:'No calls left — trust the machine.'})}break}
+        if(ev.round)updateRound(ev.round);
+        addCall(ev);
+        if(ev.dmg){if(ev.side==='them')FIGHT.them=Math.max(0,FIGHT.them-ev.dmg);else FIGHT.you=Math.max(0,FIGHT.you-ev.dmg)}
+        guard++;
+      }
+      updateMeters();break}
+    case 'intervene':{applyIntervention(el.dataset.choice);break}
+    case 'to-repairs':{nav('repairs');break}
+    case 'repair-basic':{
+      S.condition=100;save();sparksAt('#repair-stage');render();toast('Serviced. She hums like new.');break}
+    case 'repair-tune':{S.scrap-=30;save();purse();sparksAt('#repair-stage');render();toast('Deep tune complete — reads will come a beat faster.');break}
+    case 'repair-polish':{S.scrap-=15;save();purse();sparksAt('#repair-stage');render();toast('Gleaming. Objectively unnecessary. Absolutely worth it.');break}
+    case 'install':{
+      const id=el.dataset.prog;const p=PROGRAMS.find(x=>x.id===id);
+      if(p.kind==='core')S.programCore=id;else S.programUtility=id;
+      S.bank=S.bank.filter(b=>b!==id);
+      save();render();toast(`${p.name} installed to the ${p.kind} slot.`);break}
+    case 'uninstall':{
+      const slot=el.dataset.slot;
+      const id=slot==='core'?S.programCore:S.programUtility;
+      if(id)S.bank.push(id);
+      if(slot==='core')S.programCore=null;else S.programUtility=null;
+      save();render();break}
+    case 'new-gen':{
+      const heirloom=S.programCore||S.programUtility;
+      S.lineage.push({name:S.name,l1:S.lang1,l2:S.lang2,record:`${S.wins}–${S.losses}`,era:S.arcDone?'CHAMPION':'RETIRED',fell:!S.arcDone,heirloom});
+      const keepLineage=S.lineage;
+      S={...DEFAULT_STATE,lineage:keepLineage,seenIntro:true};
+      if(heirloom){const p=PROGRAMS.find(x=>x.id===heirloom);if(p.kind==='core')S.programCore=heirloom;else S.programUtility=heirloom}
+      save();renderNav();nav('onboarding');
+      toast('A new chassis waits on the bench — the heirloom is already installed.');break}
+    case 'reset-proto':{resetAll();break}
+  }
+});
+/* Keyboard: arrow-key navigation across main tabs; Enter/Space native on buttons */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&FIGHT&&FIGHT.paused){/* modal is a required decision — no escape-close, by design */}
+  if((e.key==='ArrowRight'||e.key==='ArrowLeft')&&e.target.closest('.tab-rail')){
+    const tabs=[...document.querySelectorAll('.tab:not(:disabled)')];
+    const i=tabs.indexOf(document.activeElement);
+    if(i>-1){e.preventDefault();const n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];n.focus()}
+  }
+});
+function sparksAt(sel){
+  if(REDUCED)return;const host=$(sel);if(!host)return;
+  for(let i=0;i<10;i++){const s=document.createElement('i');s.className='spark';
+    s.style.cssText=`left:${40+Math.random()*20}%;top:${50+Math.random()*20}%;--dx:${(Math.random()-0.5)*140}px;--dy:${-30-Math.random()*90}px;animation-delay:${Math.random()*.15}s`;
+    host.appendChild(s);setTimeout(()=>s.remove(),800)}
+}
+/* Debrief growth bars animate in after paint */
+function afterRender(){
+  document.querySelectorAll('.growth-bar i[data-w]').forEach(b=>{
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{b.style.width=b.dataset.w+'%'}))
+  });
+  const bn=$('#bname');
+  if(bn){bn.addEventListener('input',()=>{S.name=bn.value.toUpperCase().slice(0,20)},{passive:true})}
+}
+function render(){
+  try{
+    renderNav();
+    const fn=SCREENS[S.screen]||SCREENS.gym;
+    $('#stage').innerHTML=`<div class="screen">${fn()}</div>`;
+    purse();afterRender();
+  }catch(err){
+    $('#stage').innerHTML=`<section class="plate center"><h2 class="plate-title">The workshop hit a snag</h2>
+      <p class="small muted mono">${esc(err.message)}</p>
+      <button class="btn" data-act="reset-proto" style="margin-top:12px">Reset the prototype</button></section>`;
+  }
+}
+render();
+</script>
+</body>
+</html>

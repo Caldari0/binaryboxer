@@ -11,10 +11,10 @@ _Last updated: 2026-07-16 (audit + prototype session)._
 | **Platform research (official docs)** | ✅ done — Devvit 0.13.8, permissions schema, Funds H2 | `00-project-state.md` §platform |
 | **Licence/asset/secret audit** | ✅ clean | `01-…` §2.4–2.5 |
 | Audit docs (this folder) | ✅ written | 00/01/tool/decision/phase |
-| UX prototype — design tokens | 🔨 in progress | `design-tokens.md`, `prototype/` |
-| UX prototype — 9-screen journey | 🔨 in progress | `prototype/ux-prototype.html` |
-| UX prototype — click-through @ 3 sizes + screenshots | ⏳ queued | `prototype/screenshots/` |
-| UX bible + asset licences docs | ⏳ queued | `03-ux-and-visual-bible.md`, `asset-licences.md` |
+| UX prototype — design tokens | ✅ done | `design-tokens.md` |
+| UX prototype — 9-screen journey | ✅ done — single-file, dependency-free | `prototype/ux-prototype.html` |
+| UX prototype — click-through @ 3 sizes + screenshots | ✅ done — 22 shots, 0 errors, 0 overflow, keyboard verified | `prototype/screenshots/`, bible §4 |
+| UX bible + asset licences docs | ✅ done | `03-ux-and-visual-bible.md`, `asset-licences.md` |
 | Gate 0 foundations | ⛔ not started (Prompt 3) | — |
 | Gate 1 vertical slice | ⛔ not started (Prompts 4–6) | — |
 | Live `devvit playtest` verification | ❗ blocked — needs owner's Reddit login (`npm run login`) | — |
