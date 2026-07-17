@@ -104,3 +104,16 @@ gym+fighter module, bout service). Increment map otherwise unchanged; tree untou
 **Note:** this commit co-mingles uncommitted parallel-session doc updates present in the
 tree (canon §3 Barrow's-bucket block; pipeline §5 kit convention + §7 build completions) —
 content-identical to their sessions' work, committed here to keep the doc set consistent.
+
+---
+
+## 2026-07-17 — Increment 2: Devvit 0.12.12 → 0.13.8 (+ vite 7.3.6)
+
+**What:** `devvit`, `@devvit/web`, `@devvit/start` → 0.13.8; `vite` 7.3.1 → 7.3.6 (exact pins,
+matching repo style). vite bump is load-bearing: `@devvit/start@0.13.8` peers `vite >=7.3.5`,
+`@vitejs/plugin-react@5.1.2` caps `^7` — 7.3.6 is the only satisfying line.
+**Why:** spec §7 Gate 0 line 1 ("Update Devvit separately"); audit confirmed the one
+Devvit-Web breaking change (splash/loading params on submitCustomPost) doesn't apply here.
+**Evidence:** type-check ✓ · 84/84 tests ✓ · build ✓ (2.5 s) — zero code changes needed.
+**Open:** live `devvit playtest` needs the owner's Reddit login (auth probe declined in
+session); owner verifies via `npm run dev` at convenience. Flagged for the Gate 0 report.
