@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import { game } from './game';
-import { combat } from './combat';
+import { fight } from './fight';
 import { corner } from './corner';
 import { leaderboard } from './leaderboard';
 import { community } from './community';
@@ -15,8 +15,8 @@ export const api = new Hono();
 // Game state routes: /api/init, /api/create, /api/stats, /api/retire, /api/dynasty
 api.route('/', game);
 
-// Combat routes: /api/fight/start, /api/fight/resolve, /api/fight/complete
-api.route('/fight', combat);
+// Transactional bout routes: /api/fight/start, /advance, /acknowledge, /current
+api.route('/fight', fight);
 
 // Corner phase routes: /api/corner/repair, /api/corner/full-repair, /api/corner/train, /api/corner/swap-language
 api.route('/corner', corner);

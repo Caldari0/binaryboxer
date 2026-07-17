@@ -203,3 +203,33 @@ an intervention and resumed lands **bit-identically** with an uninterrupted run 
 foundation for idempotent re-resolution and cached-command replay. 10 new tests incl.
 200-seed grids for termination/bounds/KO-finality and a both-sides-win sanity band.
 **Evidence:** type-check ✓ · **133/133 tests** ✓ · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 8: bout command service + routes — THE CUTOVER
+
+**What (new):** `fight/service.ts` — the transactional command service: start/advance/
+acknowledge/current with commandId replay from a per-fight response cache (byte-identical
+bodies, capped at 8), revision checks returning 409 + authoritative snapshot, phase machine
+(`running → resolved → acknowledged`; `awaiting_intervention` reachable via the pause
+mechanism), rewards staged once at resolve and committed **exactly once** inside a
+watch/multi/exec transaction spanning fight + gym + fighter records; lamps decrement on loss
+(floor 0 — generation-end flow is Gate 1); fightLearning merged into the SEPARATE source;
+post-bout integrity floor 10 (repair rules are Gate 1; prevents a softlock). Ownership
+checks return 404, never leaking other users' bouts. `routes/fight.ts` — thin zod-validated
+HTTP surface (400 VALIDATION with the first issue path, 401/404/409/500 mapped from the
+service envelope).
+**What (deleted, same commit — REPLACE discipline):** `routes/combat.ts` (turn/resolve/
+complete: the punch-by-punch REMOVE + the double-award path), `engine/combat.ts`
+(autoPickAction, BossEffects switch, old resolution), `engine/enemy.ts` (uniform-scaling
+generator), and their REPLACE'd test suites (combat, enemy, combat-math, edge-cases —
+profanity tests ported verbatim to `tests/smoothness/profanity.test.ts` per their KEEP
+verdict). `api.ts` mounts the new router at `/api/fight`. **No rebuild module imports any
+legacy module; the legacy fight engine no longer exists.**
+**Consequence (planned, kickoff decision #1):** the old client fight flow is inert until
+Gate 1 wires the new protocol into the UI. init/create/corner/dynasty/leaderboard still run
+on legacy modules (`stats.ts`, `inheritance.ts`, `utils/redis.ts` survive until Gate 1).
+**Evidence:** type-check ✓ · **92/92 tests** ✓ (14-test service proof suite: replayed
+acknowledge does not double-award; concurrent duplicate acknowledges commit exactly once;
+stale revisions 409 with snapshot; zero-integrity start rejected — the donor's double-award,
+zero-HP-start, and simultaneous-KO criticals are all now structurally dead) · build ✓ · lint ✓.
