@@ -253,3 +253,30 @@ alone fakes ~30 pts of spread — 200/pair makes the gate measure true imbalance
 (technique-lean pairs ~57–62%, no-technique pairs ~37–45% — texture within corridor; Gate 1
 re-tunes per archetype × gameplan with tighter corridors when the real decision model lands).
 **Evidence:** type-check ✓ · **99/99 tests** ✓ · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 10: GATE 0 COMPLETE — wrap
+
+**Flow driven** (build-loop VERIFY): a full bout played through the command service via a
+throwaway driver — the transcript narrates every action with its reason, guard visibly cuts
+incoming damage (28 → 8/6/6 while covering up), rewards commit once at acknowledge. The
+harness table + 99-test suite are the standing evidence.
+**CLAUDE.md accuracy pass** (this commit): stack corrected (Hono, not Express), authority
+chain replaces the superseded GDD, new module map + new key schema + new endpoint table,
+REPLACE-discipline and green-tree pitfalls added — future sessions no longer inherit a
+stale frame (the drift failure mode this branch already hit once today).
+
+### Gate 0 deliverables — status
+| Deliverable (spec §7 + §6) | Status |
+|---|---|
+| Update Devvit separately; verify playtest | ✅ 0.13.8 green · playtest = **owner item** (`npm run login && npm run dev`) |
+| Enable Redis + needed Reddit access, Realtime off | ✅ validated against Devvit's own parser |
+| Schema versions + migrations | ✅ `{v,data}` envelope, fail-loud runner, kind registry |
+| Derived stat inputs (separate sources) | ✅ gym module; pair-fairness by construction |
+| Transactional/idempotent fight commands + batched advance | ✅ proven: replay, once-only rewards, races |
+| Runtime-validated contracts | ✅ zod contracts, requests 400 on violation |
+| Balance simulation gates | ✅ 9,000-bout grid in CI corridors |
+| Redis scoping fix (installation-scoped) | ✅ new keys; legacy keys die at Gate 1 |
+
+**STOPPED at the gate boundary. Gate 1 (The First Cup) not started, per the build loop.**
