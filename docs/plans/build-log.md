@@ -76,3 +76,31 @@ origin — left untouched. Baseline green: type-check ✓, 84/84 tests ✓, buil
 
 - Old post-scoped dev data: fresh start assumed (no migration from old keys). Confirm.
 - `devvit playtest` verification may need the owner (interactive auth / long-running).
+
+---
+
+## 2026-07-17 — Mid-Gate-0 pause: gym pivot absorbed, story presentation grilled
+
+**What happened:** Gate 0 execution paused at increment 2 (Devvit update — resume command:
+`npm install devvit@0.13.8 @devvit/web@0.13.8 @devvit/start@0.13.8 vite@7.3.6`). Parallel
+sessions meanwhile landed: the audit/state corpus (`docs/binary-boxing/`), the UX prototype +
+visual bible + tokens (storybook-industrial; Matrix retired), the Blender pipeline spec with
+T4 locked and First-Cup characters BUILT (hero, Barrow, Ranger, Guardian, Chief, Boiler Club
+arena, pose/WebP exports), the story canon + book draft 2, and the owner's **gym-manager
+pivot** (`docs/plans/gym-pivot-decisions.md` — coach fantasy, roster ≤5, staff wakes,
+lamps & generations).
+
+**This session's grill (10 decisions):** `docs/plans/story-presentation-decisions.md`.
+Headlines: Gate 0 stays foundations, **Gate 1 = "The First Cup"** (naming reconciled across
+gym-pivot log, canon, pipeline spec); **Gate 0 schemas are gym-shaped v1** (gym + fighter +
+bout records, installation-scoped, `storybook {pending, read}` reserved); beat system =
+Spread-13 page grammar, book-voice hybrid, reuse-first plate economy, bundled content +
+server read-state; wake plays result → wake → debrief.
+
+**Gate 0 re-scope:** tasks 4/5/6/8 re-written gym-shaped (contracts, persistence keys,
+gym+fighter module, bout service). Increment map otherwise unchanged; tree untouched since
+72655e6 by this session.
+
+**Note:** this commit co-mingles uncommitted parallel-session doc updates present in the
+tree (canon §3 Barrow's-bucket block; pipeline §5 kit convention + §7 build completions) —
+content-identical to their sessions' work, committed here to keep the doc set consistent.

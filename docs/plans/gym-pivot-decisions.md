@@ -17,7 +17,7 @@ variants) remain authoritative · story/canon: `../binary-boxing/04-story-canon.
 | 6 | **Purse** | **Crowd pays both**: purse = venue base + win bonus + crowd share (prestige earned in parallel) | Promoters pay for thrills; one meter, two rewards; a thrilling loss still covers repairs |
 | 7 | **Fighter DNA** | **Languages remain the stat seed** (2 per Remnant); the machine job = chassis art + one stat lean | Preserves the stat engine, 10-language content, learning-tips hook, and the game's name |
 | 8 | **Run structure** | **Lamps & generations**: lamps = gym integrity; a lost fixture "takes a light"; dark gym ends the generation; the **Heart-Gauge transplants into a new founding fighter**; woken friends/cups persist across generations; prestige drops to a floor; dynasty leaderboard = gym generations | Merges old integrity+dynasty with the gym model; mechanizes the story's transplant ritual; wakes-persist gives roguelite meta-progress |
-| 9 | **Gate-0 scope** | **"The First Cup" slice**: roster 2–3, no selling, scripted ransom offers, one leader series (the Chief) with staff rows 1–4, lamps on, crowd meter on, short prestige ladder | Proves every pillar at a size that respects the reliability-first priority; full market + 5-roster is Gate 1 |
+| 9 | **First-slice scope (= Gate 1)** | **"The First Cup" slice**: roster 2–3, no selling, scripted ransom offers, one leader series (the Chief) with staff rows 1–4, lamps on, crowd meter on, short prestige ladder | Proves every pillar at a size that respects the reliability-first priority; full market + 5-roster is Gate 2. _Gate naming reconciled 2026-07-17 (`story-presentation-decisions.md` #1): Gate 0 = engineering foundations per the build-loop; this slice is **Gate 1**_ |
 
 Logged assumption (raise if wrong): the in-bout engine ships unchanged — gameplan levers,
 behavioural tells, reasons-as-UI, one corner call per ordinary bout, two per boss.
@@ -30,9 +30,9 @@ behavioural tells, reasons-as-UI, one corner call per ordinary bout, two per bos
 - Roster-cap overflow behaviour (default: must sell before buying at 5/5; confirm at Gate 1)
 - Potential (PA) numbers, growth-ceiling curve, trainer acceleration rate
 - Lamp count per generation; prestige floor value
-- Redis schema for gym scope (`{postId}:gym:{username}` hash, roster set, market pool, series state)
+- Redis schema for gym scope — **installation-scoped, postId dropped** (`gym:{username}`, `fighter:{username}:{id}`, series state; per the spec §6 scoping fix and `story-presentation-decisions.md` #2; the earlier `{postId}:gym:{username}` sketch is void)
 - Champion endgame structure (post-Gate 2; his true form is book-2 canon)
-- In-world sport name (working placeholder "Fives" — owner names it)
+- ~~In-world sport name~~ — resolved: **Bantam** (`bantam-decisions.md` #2, 2026-07-16)
 
 ## Superseded from the old model
 

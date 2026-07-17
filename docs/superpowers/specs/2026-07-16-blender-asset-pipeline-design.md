@@ -59,7 +59,9 @@ hero's enamel swaps).
 
 Mechanics mapping: ranks give faces/voices to the redesign's **archetypes-with-variants**;
 class names are flavour and may appear on fight bills — scouting evidence stays behavioural
-(redesign decision #4). Gate 0 needs ~3 ranks + 1 phased boss (chief); the clan grows later.
+(redesign decision #4). The First Cup slice (**Gate 1** — naming reconciled 2026-07-17,
+`docs/plans/story-presentation-decisions.md` #1) needs ~3 ranks + 1 phased boss (chief); the
+clan grows later.
 
 Full story canon: `docs/binary-boxing/story/the-pot-who-kept-nothing.md` (origin story,
 draft 2). Wake mechanic + corner-crew unlock system + fireside-cups meta-progress:
@@ -107,7 +109,9 @@ token value so that base + illustrative self-lift *reads* on-token in the final 
   (production home decided in the implementation plan).
 - **Output**: PNG masters → WebP for the client. Budget (inline <1 s, Lighthouse >80):
   portraits target ≤80 KB exported at 2× their largest in-game display size (measured at
-  integration); arena backdrops ≤200 KB; verify sizes at every export.
+  integration); arena backdrops ≤200 KB; **story plates ≤150 KB WebP @ 1080×1350** (2× display,
+  lazy-loaded when a beat triggers, never preloaded at boot — decisions log #8); verify sizes
+  at every export.
 - **Render targets per character**: gym portrait, lineage-frame portrait, fight-pose L/R pair,
   and a 4K book-quality still. Fight sprites remain single images animated by existing CSS
   transforms (no spritesheets in Gate 0).
@@ -160,8 +164,14 @@ token value so that base + illustrative self-lift *reads* on-token in the final 
    the Heart-Gauge motif). Plate master `probe-renders/arena-boiler-club.png` (1800×600),
    export `exports/arena-boiler-club.webp` 30.8 KB (budget ≤200 KB) → then remaining three venues
 6. Rival transmission portrait
-7. Props: integrity-token coin, work-lamp onboarding vignette, poster elements, **Barrow's
-   bucket** (sacred regalia + his full-bucket panic-guard tell — canon doc §3)
+7. **Story plates** (reuse-first — `docs/plans/story-presentation-decisions.md` #4/#8): one
+   wake-reveal plate per leader (the mask-off moment; kit-hide over the existing chassis) +
+   **one shared hearth plate** (cups by the fire — reused by every wake/rescue with
+   per-character text) + ~2 transplant plates. Leader intro pages reuse gym portraits over
+   venue backdrops; origin pages reuse the book's plates (no new renders)
+8. Props: gym lamps (integrity — lamps replaced tokens, gym-pivot #8), work-lamp onboarding
+   vignette, poster elements, **Barrow's bucket** (sacred regalia + his full-bucket
+   panic-guard tell — canon doc §3)
 
 ## 8. Out of scope (this spec)
 

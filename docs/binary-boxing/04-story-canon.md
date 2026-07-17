@@ -56,7 +56,7 @@ and the leader wakes, joins the Kettleworks, and staffs one gym function:
 | 8 | Goblin Lord | **Undercroft**, mine-lift (lord of the deep halls) | **Facilities** — gym upgrade tier (economy/balance TBD) |
 | 9 | **Goblin Champion** (final) | **unknown** — has never taken off his mask | The ending. He faces your whole woken family at ringside |
 
-Leaders cannot be bought — only fought. Fighters can be either. Gate 0 slice = rows 1–4.
+Leaders cannot be bought — only fought. Fighters can be either. First Cup slice (**Gate 1**) = rows 1–4.
 
 **Barrow's bucket (canon, owner-approved 2026-07-16):** the corner bucket is Barrow's sacred
 regalia — the one thing that was ever *his*. He polishes it, presents it like a crown, offers it
@@ -103,7 +103,8 @@ different").
    some you pay home. Both count a cup.
 3. The Champion remains the recurring rival; the spout, bell-with-copper-tongue, Heart-Gauge,
    and two-layer goblin tells are unchanged from v1.
-4. The hybrid sport needs an in-world name (working placeholder: **"Fives"**) — owner names it.
+4. The hybrid sport is named — **Bantam** (`docs/plans/bantam-decisions.md` #2; retires the
+   "Fives" placeholder; also the codename for the delta layer resolved there).
 
 ## 8. Flagged: redesign-decisions revision required
 
@@ -115,10 +116,17 @@ authoritative log is `docs/plans/gym-pivot-decisions.md`; it supersedes the sing
 framing while leaving that doc's engine-level decisions intact. The fight engine, art
 pipeline, and story are unaffected.
 
-## 9. Open questions (owner, non-blocking for art)
+**Gate naming reconciled (2026-07-17):** Gate 0 = engineering foundations (build-loop);
+the First Cup slice = **Gate 1**; full market + 5-roster → Gate 2. In-game presentation of
+this canon (plate moments, beat voice, conditioning, page grammar, beat state) is settled in
+`docs/plans/story-presentation-decisions.md`.
 
-- What earns **entertainment** prestige, concretely? (risky gameplans, comebacks, KOs,
-  crowd momentum — needs a scoring rule)
-- Does the dynasty/generation mechanic survive per-fighter (retiring Remnants), per-gym, or
-  retire entirely?
-- Economy: one currency (scrap) or two (scrap + prestige)? Transfer pricing tuning.
+## 9. Open questions — RESOLVED by the gym-pivot grilling (2026-07-16)
+
+All three were settled in `docs/plans/gym-pivot-decisions.md` after this file was written:
+
+- Entertainment prestige → **momentum-swing crowd meter**, itemized in the debrief (#4).
+- Dynasty/generations → **lamps & generations**: dark gym ends the generation; Heart-Gauge
+  transplants into a new founding fighter; wakes/cups persist (#8).
+- Economy → **one spendable currency (scrap) + non-spendable prestige ladder**; purse =
+  venue base + win bonus + crowd share (#3, #6). Transfer pricing stays deferred there.
