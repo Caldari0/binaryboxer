@@ -152,3 +152,22 @@ banner. 16 new tests pin validation behaviour (tests/contracts/).
 the Gate 0 report; migrations make this cheap to change.
 **Zod 4 gotcha:** enum-keyed `z.record` is exhaustive; sparse deltas need `z.partialRecord`.
 **Evidence:** type-check ✓ · **100/100 tests** (84 donor + 16 contracts) ✓ · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 5: persistence kit (`src/server/persistence/`)
+
+**What:** installation-scoped key builders (`gym:{username}`, `fighter:{username}:{id}`,
+`fight:{fightId}`, `fight:active:{username}`, `challenge:{id}:scores` — postId gone, fixing
+the profile-fragmentation critical); `KVStore` port over the Devvit Redis subset with
+buffered optimistic transactions (watch → read → queue → exec, both adapters share exact
+semantics); `MemoryStore` with real WATCH behaviour (per-key versions + delete tombstones —
+catches the created-then-deleted ABA case); `DevvitStore` thin adapter (conflict = exec
+throw, per the donor `broadcastEvent` precedent); versioned envelope `{v, data}` + migration
+runner (fail-loud on future versions, chain gaps, and post-migration invalidity;
+`loadAndHeal` writes migrated envelopes back outside tx windows); kind registry (gym v1,
+fighter v1, fight v1). 18 new tests: WATCH conflict matrix (write/delete/ABA/two-winners),
+TTL via injected clock, migration chains, real-record round-trips.
+**Design note:** no barrel export — tests and services import concrete modules so vitest
+never pulls `@devvit/web/server` transitively.
+**Evidence:** type-check ✓ · **118/118 tests** ✓ · build ✓ · lint ✓.
