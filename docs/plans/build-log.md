@@ -185,3 +185,21 @@ pinned by a whole-pair-space fairness test); gym/fighter stores over the persist
 Gate 1 onboarding); tunables in one constants module (lamps=3, base=10, integrity=100,
 fight TTL 24h — v1's 600s TTL could expire mid-fight).
 **Evidence:** type-check ✓ · **123/123 tests** ✓ · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 7: fight engine core (`src/server/fight/`)
+
+**What:** `SeededRng` (Mulberry32 — the KEEP donor technique reimplemented; no rebuild
+import of the legacy engine) + `statToChance`; `generateOpponent` stub (deterministic,
+budget-fair: opponent total = fighter pair budget, so the harness measures the engine, not
+stat inflation); `resolution.ts` — pure deterministic core: 3-move baseline policy with a
+reason on every action, speed-ordered rounds, chin mitigation, stamina endurance fade,
+12-round cap with decision, **KO ends the round instantly** (the donor's simultaneous-KO
+turn-order bug is unrepresentable), injectable `PauseRule` (intervention mechanism, no
+production pauses at Gate 0), and `resolveUntil` — the batched advance core.
+**Key property (tested):** per-round RNG is derived from (seed, round), so a bout paused at
+an intervention and resumed lands **bit-identically** with an uninterrupted run — the
+foundation for idempotent re-resolution and cached-command replay. 10 new tests incl.
+200-seed grids for termination/bounds/KO-finality and a both-sides-win sanity band.
+**Evidence:** type-check ✓ · **133/133 tests** ✓ · build ✓ · lint ✓.
