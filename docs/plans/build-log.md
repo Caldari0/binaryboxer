@@ -117,3 +117,19 @@ Devvit-Web breaking change (splash/loading params on submitCustomPost) doesn't a
 **Evidence:** type-check ✓ · 84/84 tests ✓ · build ✓ (2.5 s) — zero code changes needed.
 **Open:** live `devvit playtest` needs the owner's Reddit login (auth probe declined in
 session); owner verifies via `npm run dev` at convenience. Flagged for the Gate 0 report.
+
+---
+
+## 2026-07-17 — Increment 3: devvit.json permissions (the Gate 0 config blocker)
+
+**What:** `permissions` block added — `redis: true`, `reddit: {enable, scope: "user"}`;
+realtime omitted (= false, per spec §6 permissions precision). In the same commit, the
+dormant `realtime.send` in `community.ts#broadcastEvent` was removed (it was a used-feature
+that would force the realtime permission on; it has been failing silently since launch and
+its feed is REMOVE-marked in the triage). The redis-list feed stays dormant until the Gate 1
+cutover deletes it.
+**Validation:** parsed clean by Devvit's own `parseAppConfig` (0.13.8 `@devvit/shared-types`)
+— resolved permissions confirm redis on, reddit user-scope, realtime false.
+**Watch-item:** if `submitCustomPost` (menu post-create) rejects under `scope: "user"` during
+the owner's playtest, bump to `"moderator"` — one line, evidence first.
+**Evidence:** type-check ✓ · 84/84 ✓ · build ✓ · lint ✓.

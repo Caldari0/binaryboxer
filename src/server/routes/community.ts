@@ -4,7 +4,7 @@
 // ============================================================
 
 import { Hono } from 'hono';
-import { context, redis, realtime } from '@devvit/web/server';
+import { context, redis } from '@devvit/web/server';
 import { log } from '../logger';
 import type { ApiError, CommunityFeedResponse } from '../../shared/api';
 import type { CommunityEvent } from '../../shared/types';
@@ -70,12 +70,9 @@ export const broadcastEvent = async (
 
     try {
       await txn.exec();
-      // Push to realtime channel so connected clients get instant updates.
-      // Channel names only allow letters, numbers, and underscores.
-      const channel = `${postId}_events`;
-      await realtime.send(channel, event).catch(() => {
-        // Realtime is best-effort; don't fail the whole operation
-      });
+      // Realtime push removed: the realtime permission stays OFF per the
+      // redesign spec §6 (permissions precision) until a real community
+      // feature uses it. The feed remains redis-only and dormant.
       return; // Success
     } catch {
       // WATCH detected a concurrent modification — retry
