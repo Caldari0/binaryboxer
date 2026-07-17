@@ -233,3 +233,23 @@ on legacy modules (`stats.ts`, `inheritance.ts`, `utils/redis.ts` survive until 
 acknowledge does not double-award; concurrent duplicate acknowledges commit exactly once;
 stale revisions 409 with snapshot; zero-integrity start rejected — the donor's double-award,
 zero-HP-start, and simultaneous-KO criticals are all now structurally dead) · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 9: balance simulation harness + gates (`src/server/sim/`)
+
+**What:** pure harness driving the real resolution core across **all 45 language pairs ×
+200 seeds (9,000 bouts)**; `npm run simulate` prints the report table; the vitest suite
+asserts the corridors in CI: overall win rate ∈ [35%, 65%] · pair win-rate spread ≤ 30 pts ·
+every pair can win and lose · mean rounds ∈ [3, 12], never past the cap · KO rate ∈
+[20%, 95%] · byte-identical determinism.
+**The gates immediately earned their keep:** the first run failed two of them (KO rate
+0.06% — damage too low to ever finish inside 12 rounds; pair spread 52 pts — power's
+marginal value ~3× any other stat's). Two tuning passes fixed the FORMULAS, not the data:
+damage offset `(power+14)×k` flattens power's marginal value; stamina half-point 8;
+technique accuracy weight 1.0 + speed 0.5. Also learned: at 40 seeds/pair, binomial noise
+alone fakes ~30 pts of spread — 200/pair makes the gate measure true imbalance (σ≈3.5 pts).
+**Shipped numbers:** win rate 51.5% · KO 80.2% · mean 8.8 rounds · true spread 24.5 pts
+(technique-lean pairs ~57–62%, no-technique pairs ~37–45% — texture within corridor; Gate 1
+re-tunes per archetype × gameplan with tighter corridors when the real decision model lands).
+**Evidence:** type-check ✓ · **99/99 tests** ✓ · build ✓ · lint ✓.

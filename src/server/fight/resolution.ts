@@ -68,9 +68,9 @@ const pickBaselineMove = (
 
 /** Endurance factor: high stamina keeps late-round output up. */
 const enduranceFactor = (stamina: number, round: number): number => {
-  const endurance = statToChance(stamina, 12); // ~0.45 at base 10
+  const endurance = statToChance(stamina, 8); // ~0.56 at base 10
   const fade = (round / MAX_ROUNDS) * (1 - endurance);
-  return 1 - fade * 0.5;
+  return 1 - fade * 0.75;
 };
 
 const attackDamage = (
@@ -82,11 +82,16 @@ const attackDamage = (
   rng: SeededRng,
 ): { hit: boolean; damage: number } => {
   const accuracyHalf = move === 'cross' ? 14 : 8; // crosses are harder to land
-  const hitChance = statToChance(attacker.stats.technique + attacker.stats.speed, accuracyHalf * 2);
+  // Technique carries accuracy; speed assists (it already buys turn order).
+  const accuracyStat = attacker.stats.technique * 1.0 + attacker.stats.speed * 0.5;
+  const hitChance = statToChance(accuracyStat, accuracyHalf * 2);
   if (!rng.chance(hitChance)) return { hit: false, damage: 0 };
 
-  const base = move === 'cross' ? attacker.stats.power * 1.6 : attacker.stats.power * 0.8;
-  const mitigation = 1 - statToChance(defender.stats.chin, 25); // chin soaks
+  // Damage offset keeps power's MARGINAL value comparable to the other
+  // stats' (raw ×power made +1 power worth ~3× any other point).
+  const base =
+    move === 'cross' ? (attacker.stats.power + 14) * 2.4 : (attacker.stats.power + 14) * 1.45;
+  const mitigation = 1 - statToChance(defender.stats.chin, 22); // chin soaks
   let damage = base * mitigation * enduranceFactor(attacker.stats.stamina, round);
   if (defenderGuarding) damage *= 0.4;
   const varied = damage * (0.85 + rng.next() * 0.3);
