@@ -1,15 +1,21 @@
 # CLAUDE.md — Binary Boxer
 
 ## Project Overview
-Binary Boxer ("Bantam") is a robot boxing **gym-manager sim** on Reddit's Devvit platform,
-mid-rebuild from a passive auto-battler (v1, the donor) to a coach fantasy: you run the
-Kettleworks gym, field Remnant fighters seeded by programming-language pairs, and wake the
-goblin gym-leader ladder into your staff.
+Binary Boxer is **two products** (`docs/plans/product-split-decisions.md`, owner ruling
+2026-07-17):
+1. **This repo's Reddit/Devvit game** — a single-fighter robot-boxing **management sim**
+   (manage, don't micromanage: draft programs, read behavioural tells, set a three-control
+   gameplan, make corner calls; every boxer action narrates its why). **UX contract:
+   `prototype/binary-boxer-editorial.html`** — editorial ivory/ink identity, no Blender
+   dependency. Mid-rebuild from the v1 auto-battler (the donor).
+2. **Godot/Steam standalone (future)** — the full experience: gym/roster depth, the
+   storybook IP, all T4 Blender art. Design doc opens post-Gate-1.
 
-**⚠ REBUILD IN PROGRESS — read before touching code:** design authority, in precedence
-order: `docs/plans/binaryboxer-redesign-decisions.md` (engine) → `docs/plans/gym-pivot-decisions.md`
-(gym structure) → `docs/plans/bantam-decisions.md` (delta layer + anti-targets) →
-`docs/plans/story-presentation-decisions.md` (gate naming, beats). Process:
+**⚠ REBUILD IN PROGRESS — read before touching code:** authority, in precedence order:
+`docs/plans/product-split-decisions.md` (product scope) →
+`docs/plans/binaryboxer-redesign-decisions.md` (engine) → `docs/plans/gym-pivot-decisions.md`
++ `docs/plans/bantam-decisions.md` + `docs/plans/story-presentation-decisions.md` (each
+partially re-scoped to the standalone by the product split — read their banners). Process:
 `docs/plans/fable-build-loop.md`. Progress + evidence: `docs/plans/build-log.md`. Donor
 salvage map: `docs/plans/donor-triage.md` — **REPLACE discipline: rebuild modules never
 import legacy modules** (`shared/types.ts`, `shared/api.ts`, `server/engine/*`,
@@ -113,9 +119,11 @@ and will not be migrated.
 ### React (Client)
 - Functional components with hooks only
 - CSS animations for all visual effects (no canvas, no WebGL)
-- Visual identity: **storybook-industrial / clockwork-whimsical** — tokens and component
-  inventory in `docs/binary-boxing/design-tokens.md` + `prototype/ux-prototype.html`
-  (the Matrix/CRT theme is retired; current `src/client` styling is legacy until Gate 1)
+- Visual identity (Reddit client): **editorial ivory/ink** per
+  `prototype/binary-boxer-editorial.html` — the UX contract for every Gate 1 screen.
+  Storybook-industrial (`docs/binary-boxing/design-tokens.md`, `prototype/ux-prototype.html`)
+  is the **standalone/book** bible, not this client's. The Matrix/CRT theme is retired;
+  current `src/client` styling is legacy until Gate 1
 
 ### Git
 - Conventional commits: `feat:`, `fix:`, `test:`, `docs:`

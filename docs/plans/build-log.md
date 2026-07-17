@@ -280,3 +280,37 @@ stale frame (the drift failure mode this branch already hit once today).
 | Redis scoping fix (installation-scoped) | ✅ new keys; legacy keys die at Gate 1 |
 
 **STOPPED at the gate boundary. Gate 1 (The First Cup) not started, per the build loop.**
+
+---
+
+## 2026-07-17 — PRODUCT SPLIT v2 + Gate 1 authorized (UI-first)
+
+**Owner playtested the Reddit app, saw the legacy v1 terminal client, and was rightly
+disappointed** — Gate 0 shipped no visible surface (by plan, but the plan gave the owner
+nothing to feel). The owner then delivered a Claude-design editorial prototype
+(`prototype/binary-boxer-editorial.html`, committed here) that renders the redesign spec's
+entire loop playably — layered fighter card, trigger-true program draft, behavioural
+scouting on the rival "null", boxer-voiced gameplan, theatrical fight with a reasons feed +
+live corner-call modal, and a debrief attributing a capped growth budget to the player's
+decisions with derived-stat breakdowns (`seed·train·learn·legacy·prog`).
+
+**Ruling (`product-split-decisions.md`):** Reddit = the single-fighter editorial management
+game (that artifact is the UX contract; no Blender dependency). Godot/Steam standalone =
+the full experience (T4 art, storybook, gym depth). Supersession banners added to
+bantam-decisions (#3/#4/#9), bantam-goal-prompt (do not paste), standalone-decisions (#2
+wording), story-presentation-decisions (beats → standalone-era). CLAUDE.md re-pointed.
+Gate 0 foundations unaffected: gym schema serves single-fighter as roster-of-1;
+lamps = the artifact's integrity lives; the bout protocol already speaks the fight
+screen's language.
+
+**Gate 1 (Reddit, editorial slice) — owner-authorized, UI-FIRST:**
+1. Fight screen wired to live `/api/fight` (reasons feed, integrity/heat, 1×/2×,
+   skip-to-decision, corner modal on `awaiting_intervention`)
+2. Editorial tokens extracted into the production client (Matrix CSS retired)
+3. Gate 1 decision model (gameplan-aware narrated reasons, heat, programs via trigger
+   registry, boss tells) replaces the baseline policy
+4. Remaining screens per the artifact: Fighter · Draft · Scout · Gameplan · Debrief · Corner
+5. Legacy client/module cutover · balance corridors re-tuned per archetype · human playtest
+   gate unchanged
+Open alignment item: stat display vocabulary (artifact shows Power/Accuracy/Durability;
+engine keys are 5; display-map for Reddit, rename via migration if the owner prefers).

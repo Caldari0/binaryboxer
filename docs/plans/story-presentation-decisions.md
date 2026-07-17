@@ -1,5 +1,10 @@
 # Story Presentation — Grilled Decisions
 
+> **⚠ Re-scoped 2026-07-17 by `product-split-decisions.md`:** the plate/beat system designed
+> here is **standalone-era presentation** (Godot/Steam, where the T4 art lives). The schema
+> reservation (`storybook {pending, read}`) and decisions #1–#2 (gate naming, gym-shaped
+> records) stand; the Reddit game keeps at most light text beats in the editorial voice.
+
 _2026-07-17 · owner grilling session (10 questions, all resolved) · governs how the story
 canon is **presented in-game** (beats, plates, voice, state) and reconciles gate naming across
 docs. Authority chain: story truth = `../binary-boxing/04-story-canon.md` · UI law =

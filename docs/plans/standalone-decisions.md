@@ -4,6 +4,11 @@ _2026-07-17 · owner interrogation (2 questions + free-text) · scope: whether/w
 ("Bantam") gets a standalone management-sim edition, and what that means for the current build ·
 delta layer on `bantam-decisions.md`; changes nothing about the Devvit lanes._
 
+> **2026-07-17 (later) — roles refined by `product-split-decisions.md`:** Devvit = the
+> single-fighter **editorial** management game (UX contract:
+> `prototype/binary-boxer-editorial.html`); ALL Blender/T4 art + the storybook + gym/roster
+> depth = this standalone. Decision #2's "lite/bout edition" wording is superseded.
+
 ## Resolved decisions
 
 | # | Decision | Choice | Why |
