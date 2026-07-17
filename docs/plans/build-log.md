@@ -133,3 +133,22 @@ cutover deletes it.
 **Watch-item:** if `submitCustomPost` (menu post-create) rejects under `scope: "user"` during
 the owner's playtest, bump to `"moderator"` — one line, evidence first.
 **Evidence:** type-check ✓ · 84/84 ✓ · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 4: runtime contracts (`src/shared/contracts/`, zod 4.4.3)
+
+**What:** the rebuild's only contract source — `common` (CONTRACT_VERSION, error envelope),
+`language` (10 retained IDs + distinct-pair rule), `stats` (five effectiveness-only keys:
+power/speed/technique/stamina/chin + separate GrowthSources), `gym` (gym-shaped v1 records:
+lamps/prestige/scrap/staff/roster≤5/storybook reservation; fighter records with languages,
+sources, condition, origin), `fight` (the transactional bout protocol: 4 phases,
+fightId/revision/commandId, batched-advance event union with **required non-empty `reason`**
+on every action, staged rewards, command cache for byte-identical replays, revision-conflict
+envelope carrying the authoritative snapshot). Legacy `shared/api.ts` got its do-not-import
+banner. 16 new tests pin validation behaviour (tests/contracts/).
+**Design note:** stat keys chosen to map 1:1 onto Bantam's deferred display vocabulary
+(Heart = the condition gauge, not a growth stat) — spec doesn't enumerate keys; flagged in
+the Gate 0 report; migrations make this cheap to change.
+**Zod 4 gotcha:** enum-keyed `z.record` is exhaustive; sparse deltas need `z.partialRecord`.
+**Evidence:** type-check ✓ · **100/100 tests** (84 donor + 16 contracts) ✓ · build ✓ · lint ✓.

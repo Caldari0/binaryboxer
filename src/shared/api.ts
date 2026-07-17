@@ -1,5 +1,10 @@
 // ============================================================
 // Binary Boxer — API Request/Response Types
+//
+// LEGACY (donor) — compile-time-only types serving the OLD game
+// loop and client. REPLACE-marked in donor-triage.md; superseded by
+// src/shared/contracts/ (runtime-validated). Do NOT import from any
+// rebuild module. This file is deleted at the Gate 1 cutover.
 // ============================================================
 
 import type {
