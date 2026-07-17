@@ -90,6 +90,27 @@ T2's illustration language**. T2's cel recipe is retained for future book/print 
   camera 52 mm, slightly low 3/4 hero angle
 - Staging: warm gradient backdrop + out-of-focus workshop props (pipe, ring) at diorama depth
 
+**Environment recipe — "storybook stage" (owner-locked 2026-07-17, piloted on The Boiler Club):**
+backgrounds are still plates composed like paper theatre, not rooms. The levers, all mandatory:
+
+- **Stage-frontal camera** — 35 mm, near-level, DoF **off** (storybook = everything crisp);
+  three depth layers: dark foreground wings → the stage → the drop.
+- **Environment material variants** `<name>_Env` (never used by characters): roughness up
+  (0.45–0.9), metallic down, value lift ~1.15–1.3, illustrative self-lift 0.06–0.14;
+  `BB_Silhouette` (near-black, lift 0.03) for wings/crowd/barriers.
+- **Painted zones, not physics** — one big soft wash (~85 W, 3.5 m) + diegetic practicals
+  (lamps ~60 W, porthole fire ~24 W); compose warm stage / dark edges deliberately.
+- **Hand-wonk** — every prop tilted 1–3°; nothing machine-straight (the crooked house gauge
+  is the signature).
+- **The goblin audience** — silhouette heads with pointed ears + `BB_GobbleGlow_Dim`
+  (strength 2.2) eye-glints peeking at the frame corners.
+- **Page finish** — `scripts/storybook-post.py` on every plate master before export
+  (vignette to 0.74 at corners, ±0.032 deterministic paper grain, seed 13). Done in numpy,
+  not the compositor — Blender 5's compositor node set is still shifting (Blur options moved
+  to sockets, MapRange removed); `Image.pixels` + numpy is the stable path.
+
+This recipe governs venues 2–4 and all story plates. Characters keep T4 §above unchanged.
+
 **Palette contract:** all colours come from `design-tokens.md` (teal `#2b8c82` family, garnet,
 brass `#c9963f`, copper `#b87352`, amber `#ffb84d`, ivory `#f2e4c8`, ink `#2b2118`); language
 identity later maps the 10 `--lang-*` hues onto enamel materials. Goblin additions are recorded
