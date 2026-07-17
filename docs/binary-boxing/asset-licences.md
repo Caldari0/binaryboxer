@@ -14,6 +14,7 @@ _Last audited: 2026-07-16. Rule: nothing ships without a row here._
 | Character library (`prototype/blender/bb-characters.blend`: hero + Gate-0 goblin clan — Barrow, Ranger, Guardian, Chief) + renders | original, procedurally built in Blender 5.0.1 (2026-07-16/17 sessions); no external assets | project licence | ✅ |
 | Hero fight-pose batch (`prototype/blender/sprites/*.png` masters, `exports/*.webp`) — guard/lunge/hit/KO × L/R, lineage + gym portraits | original renders of our model via `scripts/hero-fight-poses.py`; no external assets | project licence | ✅ |
 | Arena plate #1 The Boiler Club (`probe-renders/arena-boiler-club.png` master, `exports/arena-boiler-club.webp`) | original render of our `BB_Arena` set; no external assets | project licence | ✅ |
+| Barrow fight-pose batch (`sprites/barrow-*.png`, `exports/barrow-*.webp`) — guard/lunge/hit/KO + full-bucket panic guard × L/R; bucket prop modelled | original renders via `scripts/barrow-fight-poses.py`; no external assets | project licence | ✅ |
 | Other binary media (audio/video) | **none in repo** | — | — |
 
 ## Rules going forward
