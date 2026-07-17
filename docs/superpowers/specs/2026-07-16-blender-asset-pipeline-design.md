@@ -155,7 +155,10 @@ token value so that base + illustrative self-lift *reads* on-token in the final 
    `probe-renders/first-series-lineup.png`. Staging note for boss-scale subjects: big flat panels
    catch an axial key at full incidence — raise/steepen the key, trim key/fill (~70 W / 10 W),
    and aim the key at the chest; recipe values stay canonical for hero-scale shots
-5. Arena backdrop #1 (The Boiler Club) → then remaining three venues
+5. ~~Arena backdrop #1 (The Boiler Club)~~ ✅ built (`BB_Arena`, own stage at x=6 with
+   practical lights — hanging work lamps + porthole fire lights; house pressure-gauge echoes
+   the Heart-Gauge motif). Plate master `probe-renders/arena-boiler-club.png` (1800×600),
+   export `exports/arena-boiler-club.webp` 30.8 KB (budget ≤200 KB) → then remaining three venues
 6. Rival transmission portrait
 7. Props: integrity-token coin, work-lamp onboarding vignette, poster elements, **Barrow's
    bucket** (sacred regalia + his full-bucket panic-guard tell — canon doc §3)
