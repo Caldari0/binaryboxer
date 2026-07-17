@@ -171,3 +171,17 @@ TTL via injected clock, migration chains, real-record round-trips.
 **Design note:** no barrel export — tests and services import concrete modules so vitest
 never pulls `@devvit/web/server` transitively.
 **Evidence:** type-check ✓ · **118/118 tests** ✓ · build ✓ · lint ✓.
+
+---
+
+## 2026-07-17 — Increment 6: gym module (`src/server/gym/`)
+
+**What:** `deriveStats` — the ONLY combiner of base + language leans + separate growth
+sources (+ temp effects for Gate 1 programs); `languageLeans` — new-model identity leans,
++2/+1 per language, every language totalling exactly 3 points, so **all 45 pairs have an
+identical stat budget** (the Python-dominance critical is now impossible by construction —
+pinned by a whole-pair-space fairness test); gym/fighter stores over the persistence kit;
+`ensureGym` bootstrap bridge (founding Kettleworks gym + placeholder PEKOE fighter until
+Gate 1 onboarding); tunables in one constants module (lamps=3, base=10, integrity=100,
+fight TTL 24h — v1's 600s TTL could expire mid-fight).
+**Evidence:** type-check ✓ · **123/123 tests** ✓ · build ✓ · lint ✓.
